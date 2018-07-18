@@ -3,10 +3,9 @@
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 
 ;; Issues with certificate.
-;; (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
 (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
 (package-initialize)
-;
+
 ; Install 'use-package' if necessary
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -33,9 +32,11 @@
 (use-package flycheck-irony
   :defer t
   :ensure t)
-(use-package flycheck-pos-tip
-  :defer t
-  :ensure t)
+
+;; (use-package flycheck-pos-tip
+  ;; :defer t
+;; :ensure t)
+
 (use-package flycheck-rust
   :defer t
   :init
@@ -56,13 +57,6 @@
 
 ;; TODO Multicompile
 
-;; TODO Org mode?
-(use-package dashboard
-  :ensure t
-  :config
-  (dashboard-setup-startup-hook)
-  )
-
 ;; Python
 (use-package elpy
   :config (elpy-enable)
@@ -71,6 +65,8 @@
   :custom
   (elpy-rpc-python-command "python3")
   )
+
+;; TODO add jedi?
 
 (use-package company
   :ensure t
@@ -84,13 +80,13 @@
             (lambda () (setq company-clang-arguments "-std=c++14")))
   :config
   (setq company-idle-delay 0.1
-        company-tooltip-idle-delay 0.1
+        ;; company-tooltip-idle-delay 0.1
         company-minimum-prefix-length 3
         company-backends '(company-capf company-files
                                         (company-dabbrev company-ispell) company-keywords)
         ;; Case sensitive autocompletion!
-        company-dabbrev-downcase nil
-        company-tooltip-align-annotations t)
+        company-dabbrev-downcase nil)
+        ;; company-tooltip-align-annotations t)
   (add-hook 'c++-mode-hook
             (lambda ()
               (add-to-list (make-local-variable 'company-backends)
@@ -113,12 +109,10 @@
   (setq flycheck-check-syntax-automatically nil
         flycheck-disabled-checkers '(c/c++-clang c/c++-gcc c/c++-cppcheck)
         flycheck-display-errors-delay 0.0)
-  (flycheck-pos-tip-mode)
+  ;; (flycheck-pos-tip-mode)
   :after
   ;; Needed for xah fly key map
   (xah-fly-keys)
-  ;; TODO
-  ;; rust-mode-hook
   )
 
 (use-package rust-mode
@@ -213,7 +207,7 @@
   :diminish xah-fly-keys
   )
 
-;; Only required once!
+;; Only required once! Comment out after setup.
 ;; (use-package solarized-theme
 ;; :ensure t
 ;; :config
@@ -278,7 +272,6 @@
  '(ediff-window-setup-function (quote ediff-setup-windows-plain))
  '(eldoc-idle-delay 0.4)
  '(elpy-rpc-python-command "python3" t)
- '(gud-tooltip-mode t)
  '(ido-auto-merge-work-directories-length -1)
  '(ido-enable-flex-matching t)
  '(ido-ignore-extensions t)
@@ -290,13 +283,15 @@
  '(org-agenda-only-exact-dates t t)
  '(package-selected-packages
    (quote
-    (cargo use-package xah-fly-keys which-key solarized-theme smex racer powerline magit intero ido-ubiquitous ggtags flycheck-rust flycheck-pos-tip flycheck-irony flx-ido elpy diminish company-irony-c-headers company-irony clojure-mode better-defaults auctex)))
+    (markdown-mode cargo use-package xah-fly-keys which-key solarized-theme smex racer powerline magit intero ido-ubiquitous ggtags flycheck-rust flycheck-pos-tip flycheck-irony flx-ido elpy diminish company-irony-c-headers company-irony clojure-mode better-defaults auctex)))
+ '(racer-rust-src-path
+   "/home/gatowololo/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src")
  '(show-paren-mode t)
  '(show-trailing-whitespace t)
  '(tab-width 2)
  '(tool-bar-mode nil)
- '(user-full-name "gatoWololo")
- '(user-mail-address "gatoWololo@gmail.com"))
+ '(user-full-name "gatowololo")
+ '(user-mail-address "gatowololo@gmail.com"))
 
 ;; My Emacs functions for settings.
 (defalias 'yes-or-no-p 'y-or-n-p)
@@ -376,6 +371,7 @@
   ad-do-it
   (set-window-configuration global-config-editing))
 
+;; Make text bigger.
 (set-face-attribute 'default nil :height 130)
 
 (require 'ansi-color)
@@ -389,5 +385,4 @@
 (add-hook 'term-mode-hook
  (lambda() (setq show-trailing-whitespace nil)))
 
-(setq initial-buffer-choice
-      (lambda () (switch-to-buffer "*dashboard*")))
+(setq explicit-shell-file-name "/usr/bin/fish")

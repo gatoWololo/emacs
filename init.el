@@ -15,33 +15,54 @@
 (eval-when-compile
   (require 'use-package))
 
-(use-package diminish :ensure t)
+(use-package diminish
+  :ensure t)
+
+;; Counsel: a collection of Ivy-enhanced versions of common Emacs commands
+;; Ivy: a generic completion mechanism for Emacs
+;; Swiper: an Ivy-enhanced alternative to isearch
+(use-package counsel
+  :ensure t
+  :config
+  (ivy-mode 1)
+  :custom
+  (ivy-use-virtual-buffers t)
+  (ivy-count-format "(%d/%d) ")
+  (ivy-initial-inputs-alist nil "No ^ when ivy searching.")
+  :diminish ivy
+  )
 
 (use-package company-irony-c-headers
   :ensure t)
 
-;; (use-package company-quickhelp
-  ;; :ensure t
-  ;; :config
-  ;; (company-quickhelp-mode)
-;; )
-
-(use-package irony-eldoc
-  :defer t
-  :ensure t)
-(use-package flycheck-irony
-  :defer t
-  :ensure t)
-
-;; (use-package flycheck-pos-tip
-  ;; :defer t
-;; :ensure t)
-
-(use-package flycheck-rust
-  :defer t
+(use-package org
   :init
-  (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
-  :ensure t)
+  ;; Spell checking for org mode.
+  (add-hook 'org-mode-hook 'flyspell-mode)
+  (add-hook 'org-mode-hook 'company-mode)
+  )
+
+
+(use-package flyspell
+  :init
+  ;; (define-key flyspell-mouse-map (kbd "<mouse-3>") #'flyspell-correct-word)
+  :custom
+  (ispell-program-name "hunspell")
+  :diminish flyspell-mode
+  )
+
+(use-package markdown-mode
+  :init
+  (add-hook 'markdown-mode-hook 'flyspell-mode)
+  )
+
+(use-package auctex
+  :defer t
+  :ensure t
+  :init
+  (add-hook 'LaTeX-mode-hook 'flyspell-mode)
+  )
+
 (use-package magit
   :defer t
   :ensure t)
@@ -49,7 +70,11 @@
 ;; Rust racer
 (use-package racer
   :defer t
-  :ensure t)
+  :ensure t
+  :custom
+  (racer-rust-src-path
+   "/home/gatowololo/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src")
+  )
 
 (use-package browse-kill-ring
   :defer t
@@ -59,14 +84,14 @@
 
 ;; Python
 (use-package elpy
+  :ensure t
   :config (elpy-enable)
-  :init (add-hook 'python-mode-hook 'elpy-enable)
+  :init (add-hook 'python-mode-hook 'elpy-mode)
   :defer t
   :custom
   (elpy-rpc-python-command "python3")
+  :diminish elpy-mode
   )
-
-;; TODO add jedi?
 
 (use-package company
   :ensure t
@@ -75,18 +100,18 @@
   (add-hook 'emacs-lisp-mode-hook 'company-mode)
   (add-hook 'c++-mode-hook 'company-mode)
   (add-hook 'c-mode-hook 'company-mode)
-  (add-hook 'rust-mode-hook 'company-mode)
+  ;; (add-hook 'rust-mode-hook 'company-mode)
   (add-hook 'c++-mode-hook
             (lambda () (setq company-clang-arguments "-std=c++14")))
   :config
   (setq company-idle-delay 0.1
-        ;; company-tooltip-idle-delay 0.1
+        company-tooltip-idle-delay 0.1
         company-minimum-prefix-length 3
         company-backends '(company-capf company-files
                                         (company-dabbrev company-ispell) company-keywords)
         ;; Case sensitive autocompletion!
-        company-dabbrev-downcase nil)
-        ;; company-tooltip-align-annotations t)
+        company-dabbrev-downcase nil
+        company-tooltip-align-annotations t)
   (add-hook 'c++-mode-hook
             (lambda ()
               (add-to-list (make-local-variable 'company-backends)
@@ -94,25 +119,6 @@
 
               ))
   :diminish company-mode
-  )
-
-(use-package flycheck
-  :ensure t
-  :defer t
-  :init
-  (add-hook 'c++-mode-hook 'flycheck-mode)
-  (add-hook 'c-mode-hook 'flycheck-mode)
-  (add-hook 'emacs-lisp-mode-hook 'flycheck-mode)
-  (add-hook 'python-mode-hook 'flycheck-mode)
-  (add-hook 'rust-mode-hook 'flycheck-mode)
-  :config
-  (setq flycheck-check-syntax-automatically nil
-        flycheck-disabled-checkers '(c/c++-clang c/c++-gcc c/c++-cppcheck)
-        flycheck-display-errors-delay 0.0)
-  ;; (flycheck-pos-tip-mode)
-  :after
-  ;; Needed for xah fly key map
-  (xah-fly-keys)
   )
 
 (use-package rust-mode
@@ -132,68 +138,102 @@
   :ensure t
   :config
   (powerline-default-theme)
-  )
+ )
 
 (use-package which-key
+  :ensure t
   :config
   (which-key-mode)
   :diminish which-key-mode)
-
-(use-package flx-ido :ensure t)
-(use-package ido-completing-read+
-  :ensure t
-  :config (ido-ubiquitous-mode 1)
-  )
+(setq ido-auto-merge-work-directories-length -1)
 
 (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
-(add-hook 'c++-mode-hook 'eldoc-mode)
-
-
-(progn
-  (setq org-mode-keys (make-sparse-keymap))
-  (define-key org-mode-keys (kbd "l") 'org-insert-link)
-  (define-key org-mode-keys (kbd "a") 'org-agenda)
-  (define-key org-mode-keys (kbd "c") 'org-capture)
-  (define-key org-mode-keys (kbd "i") 'org-iswitchb)
-  (define-key org-mode-keys (kbd "f") 'org-agenda-file-to-front)
-  (define-key org-mode-keys (kbd "t") 'org-todo)
-  (define-key org-mode-keys (kbd "s") 'org-time-stamp)
-  (define-key org-mode-keys (kbd "d") 'org-deadline)
-  )
 
 ;; This way of doing it doesn't really work too well as I cannot have per buffer
 ;; binding defined per package in their declaration.
 (defun my-xah-bindings ()
   "My keybinding for xah fly keys."
-  (define-key xah-fly-key-map (kbd "7") 'flycheck-buffer)
+
+  ;; Main key bindings.
   (define-key xah-fly-key-map (kbd "DEL") 'delete-backward-char)
   (define-key xah-fly-key-map (kbd "d") 'delete-forward-char)
   (define-key xah-fly-key-map (kbd "g") 'kill-line)
-  (define-key xah-fly-key-map (kbd "s") 'switch-to-buffer)
+  (define-key xah-fly-key-map (kbd "s") 'counsel-ibuffer)
   (define-key xah-fly-key-map (kbd "p") 'dired)
-  (define-key xah-fly-key-map (kbd "a") 'amx)
+  (define-key xah-fly-key-map (kbd "a") 'counsel-M-x)
   (define-key xah-fly-key-map (kbd "4") 'split-window-right)
   (define-key xah-fly-key-map (kbd "w") 'recenter-top-bottom)
+  (define-key xah-fly-key-map (kbd "n") 'swiper)
+  (define-key xah-fly-key-map (kbd ".") 'per-mode-dot-keybindings)
+  (define-key xah-fly-key-map (kbd "v") 'per-mode-v-keybindings)
   ;; Needed since we want our hook called.
   (define-key xah-fly-key-map (kbd "M-SPC") 'xah-fly-command-mode-activate)
-  ;; Hmm, we could have a major mode hook to our mode :3
-  (define-key xah-fly-key-map (kbd "m") org-mode-keys)
+  ;; (define-key xah-fly-key-map (kbd "f") 'test)
   ;; All these keys need to be bound to something useful.
-  ;; (define-key xah-fly-key-map (kbd "b") 'TODO)
   ;; (define-key xah-fly-key-map (kbd "q") 'TODO)
-  (define-key xah-fly-key-map (kbd ".") 'xref-find-definitions)
-  ;; (define-key xah-fly-key-map (kbd "/") 'TODO)
-  (define-key xah-fly-leader-key-map (kbd "m") 'magit-status)
 
-  ;; One day I'll figure out how to make per major-mode key bindings.
-  (define-key xah-fly-leader-key-map (kbd ".") 'ggtags-find-tag-dwim)
+  (define-key xah-fly-key-map (kbd "m") 'per-mode-keybindings)
+  ;; (define-key  (kbd "c-d") (lambda () (message "heello")))
 
+  ;; Space + Key
   (define-key xah-fly-leader-key-map (kbd "4") 'split-window-below)
   (define-key xah-fly-leader-key-map (kbd "m") 'magit-status)
-  (global-unset-key (kbd "C-a"))
+  (define-key xah-fly-leader-key-map (kbd "g") 'goto-line)
+  )
+
+
+(defun my-xah-insert-mode ()
+  (define-key xah-fly-key-map (kbd "|") nil)
+  )
+
+(defun per-mode-v-keybindings ()
+  (interactive)
+  (cond
+   ((eq major-mode 'term-mode)
+    (term-paste))
+   (t
+    (xah-paste-or-paste-previous))))
+
+(defun per-mode-dot-keybindings ()
+  (interactive)
+  (cond
+   ((eq major-mode 'c++-mode)
+    (call-interactively 'ggtags-find-definition))
+   (t
+    (setq this-command 'xref-find-definitions)
+    (call-interactively 'xref-find-definitions)
+    )))
+
+;; Each mode based key binding must be a key map which will attached to "m" for modes :)
+(defun per-mode-keybindings ()
+  (interactive)
+  (cond
+   ;; Org Mode
+   ((eq major-mode 'org-mode)
+    (use-map 'my-org-mode-keymap))
+
+   ((derived-mode-p 'prog-mode)
+    (use-map 'my-prog-mode-keymap))))
+
+(defun use-map (keymap)
+  (progn
+    (define-key xah-fly-key-map (kbd "|") keymap)
+    (setq unread-command-events (listify-key-sequence "|"))))
+
+(progn
+  (define-prefix-command 'my-org-mode-keymap)
+  (define-key my-org-mode-keymap (kbd "l") 'org-insert-link)
+  (define-key my-org-mode-keymap (kbd "a") 'org-agenda)
+  (define-key my-org-mode-keymap (kbd "c") 'org-capture)
+  (define-key my-org-mode-keymap (kbd "i") 'org-iswitchb)
+  (define-key my-org-mode-keymap (kbd "f") 'org-agenda-file-to-front)
+  (define-key my-org-mode-keymap (kbd "t") 'org-todo)
+  (define-key my-org-mode-keymap (kbd "s") 'org-time-stamp)
+  (define-key my-org-mode-keymap (kbd "d") 'org-deadline)
   )
 
 (use-package xah-fly-keys
+  :ensure t
   :config
   (xah-fly-keys-set-layout "qwerty")
   (xah-fly-keys 1)
@@ -202,8 +242,10 @@
   (my-xah-bindings)
   ;; Call on every switch to command mode and on init.
   (add-hook 'xah-fly-command-mode-activate-hook 'my-xah-bindings)
-  ;; :hook
-  ;; (xah-fly-command-mode-activate . my-xah-bindings)
+  (add-hook 'xah-fly-insert-mode-activate-hook 'my-xah-insert-mode)
+
+  ;; (add-hook 'xah-fly-command-mode-activate-hook 'mode-specific-xfk-bindings)
+
   :diminish xah-fly-keys
   )
 
@@ -215,33 +257,34 @@
 ;; '(custom-enabled-themes (quote (solarized-light))))
 ;; )
 
-;; Smex replacement for auto completion.
-(use-package amx
-  :ensure t
-  )
-
 (use-package irony
   :defer t
   :ensure t
   :init
-  (add-hook 'flycheck-mode-hook 'flycheck-irony-setup)
   (add-hook 'c++-mode-hook 'irony-mode)
   (add-hook 'c-mode-hook 'irony-mode)
-  (add-hook 'irony-mode-hook 'irony-eldoc)
   :config
   (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
-  :after (flycheck)
   :diminish irony
   )
 
+(use-package company-irony
+  :defer t
+  :ensure t
+)
+;; (eval-after-load 'company
+  ;; '(add-to-list 'company-backends 'company-irony))
+
 ;; Eldoc
-(add-hook 'c-mode-hook 'eldoc-mode)
-(add-hook 'c++-mode-hook 'eldoc-mode)
+;; (add-hook 'c-mode-hook 'eldoc-mode)
+;; (add-hook 'c++-mode-hook 'eldoc-mode)
 
 
 (use-package ggtags
   :defer t
-  :init
+  :ensure t
+  ;; :init
+  :config
   (add-hook 'c++-mode-hook 'ggtags-mode)
   (add-hook 'c-mode-hook 'ggtags-mode)
   :diminish ggtags-mode
@@ -263,6 +306,7 @@
  ;; If there is more than one, they won't work right.
  '(backup-directory-alist (\` (("." . "~/.saves"))))
  '(column-number-mode t)
+ '(company-quickhelp-delay 0.1)
  '(custom-enabled-themes (quote (solarized-light)))
  '(custom-safe-themes
    (quote
@@ -272,31 +316,33 @@
  '(ediff-window-setup-function (quote ediff-setup-windows-plain))
  '(eldoc-idle-delay 0.4)
  '(elpy-rpc-python-command "python3" t)
- '(ido-auto-merge-work-directories-length -1)
- '(ido-enable-flex-matching t)
- '(ido-ignore-extensions t)
+ '(gud-tooltip-mode t)
  '(indent-tabs-mode nil)
  '(inhibit-startup-screen t)
+ '(ispell-program-name "hunspell")
+ '(ivy-count-format "(%d/%d) ")
+ '(ivy-initial-inputs-alist nil t)
+ '(ivy-use-virtual-buffers t)
  '(org-agenda-files
    (quote
-    ("~/Logs/Rust/rust.org" "~/Logs/GradSchool/gradSchool.org" "~/Logs/DeterministicProject/detProject.org")))
+    ("~/Logs/DeterministicProject/detProject.org" "~/Logs/Rust/rust.org" "~/Logs/GradSchool/gradSchool.org")))
  '(org-agenda-only-exact-dates t t)
  '(package-selected-packages
    (quote
-    (markdown-mode cargo use-package xah-fly-keys which-key solarized-theme smex racer powerline magit intero ido-ubiquitous ggtags flycheck-rust flycheck-pos-tip flycheck-irony flx-ido elpy diminish company-irony-c-headers company-irony clojure-mode better-defaults auctex)))
- '(racer-rust-src-path
-   "/home/gatowololo/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src")
+    (company-quickhelp counsel haskell-mode markdown-mode cargo use-package xah-fly-keys which-key solarized-theme smex racer powerline magit intero ido-ubiquitous ggtags flycheck-rust flycheck-pos-tip flycheck-irony flx-ido elpy diminish company-irony-c-headers company-irony clojure-mode better-defaults auctex)))
  '(show-paren-mode t)
  '(show-trailing-whitespace t)
  '(tab-width 2)
  '(tool-bar-mode nil)
+ '(tooltip-mode nil)
  '(user-full-name "gatowololo")
  '(user-mail-address "gatowololo@gmail.com"))
 
 ;; My Emacs functions for settings.
 (defalias 'yes-or-no-p 'y-or-n-p)
+;; Ido when searching for file, I like this better.
 (ido-mode 1)
-(ido-everywhere t)
+;; (ido-everywhere t)
 (add-to-list `completion-ignored-extensions ".d")
 (scroll-bar-mode -1)
 (menu-bar-mode -1)
@@ -383,6 +429,67 @@
 
 ; Do not highlight whitespce for terminal modes.
 (add-hook 'term-mode-hook
- (lambda() (setq show-trailing-whitespace nil)))
+          (lambda() (setq show-trailing-whitespace nil)))
+
+(defun term-paste ()
+  "Special function to paste in term mode."
+  (interactive)
+  (term-line-mode)
+  (xah-paste-or-paste-previous)
+  (term-char-mode)
+  )
 
 (setq explicit-shell-file-name "/usr/bin/fish")
+
+(defun reformat-lines-80 ( &optional @length)
+  "Reformat current text block into 1 long line or multiple short lines.
+When there is a text selection, act on the selection, else, act on a text block separated by blank lines.
+
+When the command is called for the first time, it checks the current line's length to decide to go into 1 line or multiple lines. If current line is short, it'll reformat to 1 long lines. And vice versa.
+
+Repeated call toggles between formatting to 1 long line and multiple lines.
+
+If `universal-argument' is called first, use the number value for min length of line. By default, it's 80.
+
+URL `http://ergoemacs.org/emacs/emacs_reformat_lines.html'
+Version 2017-10-22"
+  (interactive)
+  ;; This command symbol has a property “'is-longline-p”, the possible values are t and nil. This property is used to easily determine whether to compact or uncompact, when this command is called again
+  (let* (
+         (@length (if @length
+                      @length
+                    (if current-prefix-arg (prefix-numeric-value current-prefix-arg) 80 )))
+         (is-longline-p
+          (if (eq last-command this-command)
+              (get this-command 'is-longline-p)
+            (> (- (line-end-position) (line-beginning-position)) @length)))
+         ($blanks-regex "\n[ \t]*\n")
+         $p1 $p2
+         )
+    (if (use-region-p)
+        (progn (setq $p1 (region-beginning))
+               (setq $p2 (region-end)))
+      (save-excursion
+        (if (re-search-backward $blanks-regex nil "move")
+            (progn (re-search-forward $blanks-regex)
+                   (setq $p1 (point)))
+          (setq $p1 (point)))
+        (if (re-search-forward $blanks-regex nil "move")
+            (progn (re-search-backward $blanks-regex)
+                   (setq $p2 (point)))
+          (setq $p2 (point)))))
+    (progn
+      (if current-prefix-arg
+          (xah-reformat-to-multi-lines $p1 $p2 @length)
+        (if is-longline-p
+            (xah-reformat-to-multi-lines $p1 $p2 @length)
+          (xah-reformat-whitespaces-to-one-space $p1 $p2)))
+      (put this-command 'is-longline-p (not is-longline-p)))))
+(put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
+
+(defun my--advice-irony-start-process (orig-func &rest args)
+  (let ((shell-file-name "/bin/sh"))
+    (apply orig-func args)))
+
+(advice-add 'irony--start-server-process :around 'my--advice-irony-start-process)

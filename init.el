@@ -24,13 +24,29 @@
 (use-package diminish
   :ensure t)
 
+(use-package smart-mode-line
+  :ensure t
+  :config (sml/setup)
+  ;; :diminish
+  )
+
+
+
 (use-package ob-rust
   :ensure t)
 
-;; (use-package projectile
-;;   :ensure t
-;;   :init
-;;   (projectile-mode +1))
+(use-package projectile
+  :ensure t
+  :diminish projectile-mode)
+
+(use-package autorevert
+  :diminish auto-revert-mode
+  )
+
+(use-package eldoc
+  :diminish eldoc-mode
+  )
+
 (setq compilation-read-command nil)
 
 ;; Autocompletion engine used by ivy/counsel/?swiper?
@@ -98,6 +114,7 @@
 (use-package racer
   :defer t
   :ensure t
+  :diminish racer-mode
   )
 ;; TODO Multicompile
 
@@ -152,7 +169,7 @@
 
 (use-package cargo
   :ensure t
-  :diminish cargo)
+  :diminish cargo-minor-mode)
 
 (use-package powerline
   :ensure t
@@ -412,6 +429,7 @@
  '(backup-directory-alist (\` (("." . "~/.saves"))))
  '(column-number-mode t)
  '(company-quickhelp-delay 0.1)
+ '(compilation-read-command t)
  '(custom-enabled-themes (quote (solarized-light)))
  '(custom-safe-themes
    (quote
@@ -433,8 +451,9 @@
  '(org-log-into-drawer t)
  '(package-selected-packages
    (quote
-    (rg wgrep hide-mode-line ob-rust org-present ccls company-lsp lsp-mode ggtags lsp-rust lsp amx fish-mode company-quickhelp counsel haskell-mode markdown-mode cargo use-package xah-fly-keys which-key solarized-theme smex racer powerline magit intero flycheck-rust flycheck-pos-tip flycheck-irony flx-ido elpy diminish company-irony-c-headers clojure-mode better-defaults auctex)))
+    (smart-mode-line rg wgrep hide-mode-line ob-rust org-present ccls company-lsp lsp-mode ggtags lsp-rust lsp amx fish-mode company-quickhelp counsel haskell-mode markdown-mode cargo use-package xah-fly-keys which-key solarized-theme smex racer powerline magit intero flycheck-rust flycheck-pos-tip flycheck-irony flx-ido elpy diminish company-irony-c-headers clojure-mode better-defaults auctex)))
  '(projectile-completion-system (quote ivy))
+ '(projectile-mode t nil (projectile))
  '(racer-rust-src-path
    "/home/gatowololo/.rustup/toolchains/nightly-2019-06-19-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src")
  '(show-paren-mode t)

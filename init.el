@@ -24,14 +24,6 @@
 (use-package diminish
   :ensure t)
 
-(use-package smart-mode-line
-  :ensure t
-  :config (sml/setup)
-  ;; :diminish
-  )
-
-
-
 (use-package ob-rust
   :ensure t)
 
@@ -62,16 +54,11 @@
   :ensure t
   :config
   (ivy-mode 1)
-  ;; does not seem to work
   (setq ivy-count-format "")
   :custom
   (ivy-use-virtual-buffers t)
   ;; (ivy-initial-inputs-alist nil "No ^ when ivy searching.")
-  :diminish (ivy-mode . "")
   )
-
-;; (use-package company-irony-c-headers
-  ;; :ensure t)
 
  (use-package org
   :init
@@ -429,19 +416,23 @@
  '(backup-directory-alist (\` (("." . "~/.saves"))))
  '(column-number-mode t)
  '(company-quickhelp-delay 0.1)
+ '(compilation-ask-about-save nil)
+ '(compilation-auto-jump-to-first-error t)
  '(compilation-read-command t)
+ '(compilation-skip-threshold 2)
  '(custom-enabled-themes (quote (solarized-light)))
  '(custom-safe-themes
    (quote
-    ("d91ef4e714f05fff2070da7ca452980999f5361209e679ee988e3c432df24347" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" default)))
+    ("a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" "d91ef4e714f05fff2070da7ca452980999f5361209e679ee988e3c432df24347" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" default)))
  '(ediff-diff-options "-w")
  '(ediff-split-window-function (quote split-window-horizontally))
  '(ediff-window-setup-function (quote ediff-setup-windows-plain))
  '(eldoc-idle-delay 0.4)
- '(elpy-rpc-python-command "python3" t)
+ '(elpy-rpc-python-command "python3")
  '(gud-tooltip-mode t)
  '(indent-tabs-mode nil)
  '(inhibit-startup-screen t)
+ '(ivy-extra-directories (quote ("./")))
  '(ivy-initial-inputs-alist nil)
  '(ivy-use-virtual-buffers nil)
  '(lsp-inhibit-message nil)
@@ -479,9 +470,15 @@
 
 ;; Dired mode omit hidden files:
 (require 'dired-x)
+;; TODO Should probably be a toggle.
 (setq-default dired-omit-files-p t) ; Buffer-local variable
 ;; Omit all files starting with "." except "." and ".."
 (setq dired-omit-files "^\\.[^.]+")
+(add-hook 'dired-mode-hook
+          (lambda() (dired-hide-details-mode)))
+;; (add-hook 'dired-mode-hook
+;;           (lambda() (toggle-truncate-lines)))
+
 
 
 (custom-set-faces
@@ -489,6 +486,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(cargo-process--error-face ((t (:inherit error :weight bold))))
  '(org-block-begin-line ((t (:inherit org-meta-line :underline nil))))
  '(org-block-end-line ((t (:inherit org-meta-line :overline nil)))))
 
@@ -734,3 +732,33 @@ Version 2017-10-22"
   (insert "#+BEGIN_SRC rust\n\n#+END_SRC")
   (previous-line)
   )
+
+(use-package smart-mode-line
+  :ensure t
+  :config (sml/setup)
+  ;; :diminish
+  )
+
+;; Temporary fix to Rust Mode for properly parsing regex for compilation mode.
+;; TODO May need to be moved into rust-mode and called before loading...
+(setq rustc-compilation-regexps
+  (let ((file "\\([^\n]+\\)")
+        (start-line "\\([0-9]+\\)")
+        (start-col  "\\([0-9]+\\)"))
+    (let ((re (concat "^\\(?:\\(?:error\\)\\|\\(?:error\\[E[0-9]+\\]\\)\\|\\(warning\\)\\)[^\0]+?--> \\(" file ":" start-line ":" start-col "\\)")))
+      (cons re '(3 4 5 (1) 2)))))
+
+(defun rust-multiline-error-filter ()
+  (save-excursion
+    (let ((start compilation-filter-start)
+          (end (point)))
+      (goto-char start)
+      (beginning-of-line)  ; is this necessary? should not harm ...
+      (while (re-search-forward "^\\(error\\|warning\\)\\(?:\\[E[0-9]+\\]\\)?:[^\n]*[\n]" end t)
+        (put-text-property (match-beginning 0) (match-end 0) 'compilation-multiline t)))))
+(add-hook 'rust-mode-hook
+          (lambda () (add-hook 'compilation-filter-hook #'rust-multiline-error-filter)))
+
+;; TODO
+;; (define-key cargo-process-mode-map (kbd "n") 'next-error)
+;; (define-key cargo-process-mode-map (kbd "p") 'previous-error-no-select)

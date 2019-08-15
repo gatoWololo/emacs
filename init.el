@@ -6,7 +6,9 @@
 (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
 (package-initialize)
 
-(load-file "./local.el")
+(setq omar-local-file "~/.emacs.d/local.el")
+(if (file-exists-p omar-local-file)
+    (load-file omar-local-file))
 
 (use-package hide-mode-line
   :ensure t
@@ -57,6 +59,7 @@
   (setq ivy-count-format "")
   :custom
   (ivy-use-virtual-buffers t)
+  :diminish ivy-mode
   ;; (ivy-initial-inputs-alist nil "No ^ when ivy searching.")
   )
 
@@ -215,6 +218,9 @@
   (define-key xah-fly-key-map (kbd "n") 'swiper)
   (define-key xah-fly-key-map (kbd "0") 'delete-window)
 
+  (global-set-key (kbd "M-n") 'omar-next-error)
+  (global-set-key (kbd "M-p") 'omar-prev-error)
+
   ;; Get rid of old open and close buffer mappings.
   (define-key xah-fly-t-keymap (kbd "j") 'nothing)
   (define-key xah-fly-c-keymap (kbd "e") 'nothing)
@@ -248,7 +254,12 @@
   (define-key xah-fly-leader-key-map (kbd ".") 'per-mode-spc-dot-keybindings)
   (define-key xah-fly-leader-key-map (kbd "t")
     '(lambda ()  (interactive) (ansi-term "/usr/bin/fish")))
+  (define-key xah-fly-leader-key-map (kbd "s") 'alternate-buffer)
   )
+
+(defun alternate-buffer ()
+  (interactive)
+  (switch-to-buffer (other-buffer)))
 
 
 ;; We use | as a special symbol to get my keybindings to work.
@@ -415,11 +426,12 @@
  ;; If there is more than one, they won't work right.
  '(backup-directory-alist (\` (("." . "~/.saves"))))
  '(column-number-mode t)
+
  '(company-quickhelp-delay 0.1)
  '(compilation-ask-about-save nil)
- '(compilation-auto-jump-to-first-error t)
  '(compilation-read-command t)
  '(compilation-skip-threshold 2)
+
  '(custom-enabled-themes (quote (solarized-light)))
  '(custom-safe-themes
    (quote
@@ -466,12 +478,10 @@
 (menu-bar-mode -1)
 (electric-pair-mode 1)
 
-;; Dired mode omit hidden files:
-(require 'dired-x)
 ;; TODO Should probably be a toggle.
 (setq-default dired-omit-files-p t) ; Buffer-local variable
 ;; Omit all files starting with "." except "." and ".."
-(setq dired-omit-files "^\\.[^.]+")
+;; (setq dired-omit-files "^\\.[^.]+")
 (add-hook 'dired-mode-hook
           (lambda() (dired-hide-details-mode)))
 ;; (add-hook 'dired-mode-hook
@@ -757,6 +767,23 @@ Version 2017-10-22"
 (add-hook 'rust-mode-hook
           (lambda () (add-hook 'compilation-filter-hook #'rust-multiline-error-filter)))
 
-;; TODO
-;; (define-key cargo-process-mode-map (kbd "n") 'next-error)
-;; (define-key cargo-process-mode-map (kbd "p") 'previous-error-no-select)
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+(add-hook 'minibuffer-setup-hook '(lambda () (setq show-trailing-whitespace nil)))
+(add-hook 'compilation-mode-hook
+          (lambda ()
+            (local-set-key (kbd "M-n") 'omar-next-error)
+            (local-set-key (kbd "M-p") 'omar-prev-error)))
+
+(defun omar-next-error ()
+  (interactive)
+  (xah-next-window-or-frame)
+  (condition-case nil
+      (next-error 1)
+    (error (xah-next-window-or-frame))))
+
+(defun omar-prev-error ()
+  (interactive)
+  (xah-next-window-or-frame)
+  (condition-case nil
+      (previous-error 1)
+    (error (xah-next-window-or-frame))))

@@ -6,7 +6,7 @@
 (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
 (package-initialize)
 
-
+(load-file "./local.el")
 
 (use-package hide-mode-line
   :ensure t
@@ -29,7 +29,6 @@
   :config (sml/setup)
   ;; :diminish
   )
-
 
 
 (use-package ob-rust
@@ -429,11 +428,10 @@
  '(backup-directory-alist (\` (("." . "~/.saves"))))
  '(column-number-mode t)
  '(company-quickhelp-delay 0.1)
- '(compilation-read-command t)
  '(custom-enabled-themes (quote (solarized-light)))
  '(custom-safe-themes
    (quote
-    ("d91ef4e714f05fff2070da7ca452980999f5361209e679ee988e3c432df24347" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" default)))
+    ("d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" default)))
  '(ediff-diff-options "-w")
  '(ediff-split-window-function (quote split-window-horizontally))
  '(ediff-window-setup-function (quote ediff-setup-windows-plain))
@@ -442,20 +440,18 @@
  '(gud-tooltip-mode t)
  '(indent-tabs-mode nil)
  '(inhibit-startup-screen t)
+ '(ispell-program-name "hunspell")
+ '(ivy-count-format "(%d/%d) ")
  '(ivy-initial-inputs-alist nil)
  '(ivy-use-virtual-buffers nil)
  '(lsp-inhibit-message nil)
- '(org-agenda-files (quote ("~/Mozilla/log.org")))
  '(org-agenda-only-exact-dates t t)
  '(org-confirm-babel-evaluate nil)
  '(org-log-into-drawer t)
  '(package-selected-packages
    (quote
-    (smart-mode-line rg wgrep hide-mode-line ob-rust org-present ccls company-lsp lsp-mode ggtags lsp-rust lsp amx fish-mode company-quickhelp counsel haskell-mode markdown-mode cargo use-package xah-fly-keys which-key solarized-theme smex racer powerline magit intero flycheck-rust flycheck-pos-tip flycheck-irony flx-ido elpy diminish company-irony-c-headers clojure-mode better-defaults auctex)))
+    (rg smart-mode-line hide-mode-line ob-rust org-present ccls company-lsp lsp-mode ggtags lsp-rust lsp amx fish-mode company-quickhelp counsel haskell-mode markdown-mode cargo use-package xah-fly-keys which-key solarized-theme smex racer powerline magit intero flycheck-rust flycheck-pos-tip flycheck-irony flx-ido elpy diminish company-irony-c-headers clojure-mode better-defaults auctex)))
  '(projectile-completion-system (quote ivy))
- '(projectile-mode t nil (projectile))
- '(racer-rust-src-path
-   "/home/gatowololo/.rustup/toolchains/nightly-2019-06-19-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src")
  '(show-paren-mode t)
  '(show-trailing-whitespace t)
  '(swiper-include-line-number-in-search nil)

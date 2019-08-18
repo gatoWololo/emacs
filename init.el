@@ -68,10 +68,14 @@
   ;; Spell checking for org mode.
   (add-hook 'org-mode-hook 'flyspell-mode)
   (add-hook 'org-mode-hook 'company-mode)
+  (add-hook 'org-agenda-mode-hook 'my-no-show-whitespace)
   :config
   (setq org-todo-keywords
   '((sequence "TODO(t)" "NEXT(n)" "SOMEDAY(s)" "ASSIGNED(a@)" "|" "WONT_DO(w)" "DONE(d)")))
   )
+
+(defun my-no-show-whitespace ()
+  (setq show-trailing-whitespace nil))
 
 
 ;; (use-package flyspell
@@ -94,7 +98,12 @@
   :ensure t
   :init
   (add-hook 'LaTeX-mode-hook 'flyspell-mode)
+  :config
+  ;; Unbind so error message doesn't show crappy default keybinding.
+  (define-key TeX-mode-map (kbd "C-c `") nil)
+  (define-key TeX-mode-map (kbd "C-x `") nil)
   )
+
 
 (use-package magit
   :defer t
@@ -215,7 +224,7 @@
   (define-key xah-fly-key-map (kbd "4") 'split-window-right)
   (define-key xah-fly-key-map (kbd "5") 'counsel-M-x)
   (define-key xah-fly-key-map (kbd "w") 'recenter-top-bottom)
-  (define-key xah-fly-key-map (kbd "n") 'swiper)
+  (define-key xah-fly-key-map (kbd "n") 'omar-swiper)
   (define-key xah-fly-key-map (kbd "0") 'delete-window)
 
   (global-set-key (kbd "M-n") 'omar-next-error)
@@ -229,7 +238,7 @@
 
   ;; Usually paste, but when in term mode, we want to use special paste.
   (define-key xah-fly-key-map (kbd "v") 'per-mode-v-keybindings)
-  (define-key xah-fly-key-map (kbd "b") 'my-org-mode-keymap)
+  (define-key xah-fly-key-map (kbd "b") 'my-b-keymap)
   ;; Needed since we want our hook called.
   (define-key xah-fly-key-map (kbd "M-SPC") 'nothing)
   ;; (define-key xah-fly-key-map (kbd "f") 'test)
@@ -252,8 +261,7 @@
   (define-key xah-fly-leader-key-map (kbd "j") 'nothing)
   (define-key xah-fly-leader-key-map (kbd ";") 'nothing)
   (define-key xah-fly-leader-key-map (kbd ".") 'per-mode-spc-dot-keybindings)
-  (define-key xah-fly-leader-key-map (kbd "t")
-    '(lambda ()  (interactive) (ansi-term "/usr/bin/fish")))
+  (define-key xah-fly-leader-key-map (kbd "t") 'omar-highlight-symbol)
   (define-key xah-fly-leader-key-map (kbd "s") 'alternate-buffer)
   )
 
@@ -315,9 +323,52 @@
    ((eq major-mode 'rust-mode)
     (use-map 'my-rust-mode-keymap))
 
-   ;; TODO I don't now what this is: Programming modes?
-   ((derived-mode-p 'prog-mode)
-    (use-map 'my-prog-mode-keymap))))
+   ((eq major-mode 'dired-mode)
+    (use-map 'my-dired-mode-keymap))
+
+   ((eq major-mode 'org-mode)
+    (use-map 'my-org-mode-keymap))
+
+   ((eq major-mode 'latex-mode)
+    (use-map 'my-latex-mode-keymap))
+
+   ((eq major-mode 'emacs-lisp-mode)
+    (use-map 'my-emacs-lisp-mode-keymap))))
+
+(progn
+  (define-prefix-command 'my-latex-mode-keymap)
+  (define-key my-latex-mode-keymap (kbd "e") 'TeX-command-run-all)
+  (define-key my-latex-mode-keymap (kbd "n") 'TeX-next-error)
+  )
+
+(progn
+  (define-prefix-command 'my-emacs-lisp-mode-keymap)
+  (define-key my-emacs-lisp-mode-keymap (kbd "e") 'eval-buffer))
+
+
+(defun omar-swiper ()
+  "like swiper but uses the highlighted work if one is there."
+  (interactive)
+  (if (region-active-p)
+      (let ((word (buffer-substring (region-beginning) (region-end))))
+        (deactivate-mark)
+        (swiper word))
+    (swiper)))
+
+(defun omar-highlight-symbol ()
+  (interactive)
+  (let (bounds pos1 pos2 mything)
+    (setq bounds (bounds-of-thing-at-point 'symbol))
+    (setq pos1 (car bounds))
+    (setq pos2 (cdr bounds))
+    ;; (setq word (buffer-substring-no-properties pos1 pos2))
+    (goto-char pos2)
+    (push-mark pos1)
+    (setq mark-active t)))
+
+(progn
+  (define-prefix-command 'my-dired-mode-keymap)
+  (define-key my-dired-mode-keymap (kbd "m") 'dired-mark))
 
 (progn
   (define-prefix-command 'my-rust-mode-keymap)
@@ -332,9 +383,8 @@
   )
 
 (defun use-map (keymap)
-  (progn
     (define-key xah-fly-key-map (kbd "|") keymap)
-    (setq unread-command-events (listify-key-sequence "|"))))
+    (setq unread-command-events (listify-key-sequence "|")))
 
 ;;; Org Mode commands for my keymap.
 (progn
@@ -342,17 +392,24 @@
   (define-prefix-command 'my-org-mode-keymap)
   ;; Bindings:
   (define-key my-org-mode-keymap (kbd "l") 'org-insert-link)
-  (define-key my-org-mode-keymap (kbd "a") 'org-agenda)
-  (define-key my-org-mode-keymap (kbd "j") 'org-clock-jump-to-current-clock)
   (define-key my-org-mode-keymap (kbd "t") 'org-todo)
   (define-key my-org-mode-keymap (kbd "s") 'org-time-stamp)
   (define-key my-org-mode-keymap (kbd "d") 'org-deadline)
   (define-key my-org-mode-keymap (kbd "i") 'org-clock-in)
   (define-key my-org-mode-keymap (kbd "o") 'org-clock-out)
   (define-key my-org-mode-keymap (kbd "c") 'org-ctrl-c-ctrl-c)
-  (define-key my-org-mode-keymap (kbd "r") 'org-archive-subtree)
-  (define-key my-org-mode-keymap (kbd "<left>") 'org-promote-subtree)
-  (define-key my-org-mode-keymap (kbd "<right>") 'org-demote-subtree)
+
+  ;; TODO Make better
+  ;; (define-key my-org-mode-keymap (kbd "r") 'org-archive-subtree)
+  ;; (define-key my-org-mode-keymap (kbd "<left>") 'org-promote-subtree)
+  ;; (define-key my-org-mode-keymap (kbd "<right>") 'org-demote-subtree)
+  )
+
+;;; Key bindings that should be avaliable from any buffer i.e. not major mode specific.
+(progn
+  (define-prefix-command 'my-b-keymap)
+  (define-key my-b-keymap (kbd "a") 'org-agenda)
+  (define-key my-b-keymap (kbd "j") 'org-clock-jump-to-current-clock)
   )
 
 (use-package xah-fly-keys
@@ -424,14 +481,22 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(TeX-save-query nil)
+ '(TeX-view-program-selection
+   (quote
+    (((output-dvi has-no-display-manager)
+      "dvi2tty")
+     ((output-dvi style-pstricks)
+      "dvips and gv")
+     (output-dvi "xdvi")
+     (output-pdf "Okular")
+     (output-html "xdg-open"))))
  '(backup-directory-alist (\` (("." . "~/.saves"))))
  '(column-number-mode t)
-
  '(company-quickhelp-delay 0.1)
  '(compilation-ask-about-save nil)
  '(compilation-read-command t)
  '(compilation-skip-threshold 2)
-
  '(custom-enabled-themes (quote (solarized-light)))
  '(custom-safe-themes
    (quote
@@ -444,9 +509,9 @@
  '(gud-tooltip-mode t)
  '(indent-tabs-mode nil)
  '(inhibit-startup-screen t)
- '(ispell-program-name "hunspell")
  '(ivy-count-format "(%d/%d) ")
  '(ivy-extra-directories (quote ("./")))
+ '(ivy-height 20)
  '(ivy-initial-inputs-alist nil)
  '(ivy-use-virtual-buffers nil)
  '(lsp-inhibit-message nil)
@@ -484,6 +549,8 @@
 ;; (setq dired-omit-files "^\\.[^.]+")
 (add-hook 'dired-mode-hook
           (lambda() (dired-hide-details-mode)))
+;; (add-hook 'dired-mode-hook
+;;           (lambda() (local-set-key "")))
 ;; (add-hook 'dired-mode-hook
 ;;           (lambda() (toggle-truncate-lines)))
 
@@ -787,3 +854,20 @@ Version 2017-10-22"
   (condition-case nil
       (previous-error 1)
     (error (xah-next-window-or-frame))))
+
+;; (defun my-describe-keymap (keymap)
+;;   "Describe a keymap using `substitute-command-keys'."
+;;   (interactive
+;;    (list (completing-read
+;;           "Keymap: " (let (maps)
+;;                        (mapatoms (lambda (sym)
+;;                                    (and (boundp sym)
+;;                                         (keymapp (symbol-value sym))
+;;                                         (push sym maps))))
+;;                        maps)
+;;           nil t)))
+;;   (with-output-to-temp-buffer (format "*keymap: %s*" keymap)
+;;     (princ (format "%s\n\n" keymap))
+;;     (princ (substitute-command-keys (format "\\{%s}" keymap)))
+;;     (with-current-buffer standard-output ;; temp buffer
+;;       (setq help-xref-stack-item (list #'my-describe-keymap keymap)))))

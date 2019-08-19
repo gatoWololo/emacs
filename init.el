@@ -221,6 +221,7 @@
   (define-key xah-fly-key-map (kbd "p") 'dired)
   ;; amx will rebind execute-extended-command to point to amx command.
   (define-key xah-fly-key-map (kbd "a") 'nothing)
+  (define-key xah-fly-key-map (kbd "q") 'nothing)
   (define-key xah-fly-key-map (kbd "4") 'split-window-right)
   (define-key xah-fly-key-map (kbd "5") 'counsel-M-x)
   (define-key xah-fly-key-map (kbd "w") 'recenter-top-bottom)
@@ -410,6 +411,10 @@
   (define-prefix-command 'my-b-keymap)
   (define-key my-b-keymap (kbd "a") 'org-agenda)
   (define-key my-b-keymap (kbd "j") 'org-clock-jump-to-current-clock)
+  (define-key my-b-keymap (kbd "f") 'describe-function)
+  (define-key my-b-keymap (kbd "k") 'describe-key)
+  (define-key my-b-keymap (kbd "v") 'describe-variable)
+  (define-key my-b-keymap (kbd "i") 'omar-goto-init)
   )
 
 (use-package xah-fly-keys

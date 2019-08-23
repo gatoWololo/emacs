@@ -398,6 +398,7 @@
   (define-key my-org-mode-keymap (kbd "d") 'org-deadline)
   (define-key my-org-mode-keymap (kbd "i") 'org-clock-in)
   (define-key my-org-mode-keymap (kbd "o") 'org-clock-out)
+  (define-key my-org-mode-keymap (kbd "u") 'org-clock-update-time-maybe)
   (define-key my-org-mode-keymap (kbd "c") 'org-ctrl-c-ctrl-c)
 
   ;; TODO Make better
@@ -494,7 +495,7 @@
      ((output-dvi style-pstricks)
       "dvips and gv")
      (output-dvi "xdvi")
-     (output-pdf "Okular")
+     (output-pdf "Evince")
      (output-html "xdg-open"))))
  '(backup-directory-alist (\` (("." . "~/.saves"))))
  '(column-number-mode t)

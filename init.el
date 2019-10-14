@@ -10,8 +10,21 @@
 (if (file-exists-p omar-local-file)
     (load-file omar-local-file))
 
+(use-package org-wild-notifier
+  :ensure t
+  :config
+  (org-wild-notifier-mode)
+  (setq alert-default-style 'libnotify)
+  )
+
 (use-package hide-mode-line
   :ensure t
+  )
+
+(use-package ledger-mode
+  :ensure t
+  :init
+  (add-to-list 'auto-mode-alist '("\\.journal\\'" . ledger-mode))
   )
 
 ; Install 'use-package' if necessary
@@ -62,6 +75,8 @@
   :diminish ivy-mode
   ;; (ivy-initial-inputs-alist nil "No ^ when ivy searching.")
   )
+
+(add-hook 'calendar-mode-hook 'my-no-show-whitespace)
 
  (use-package org
   :init
@@ -308,6 +323,9 @@
    ((eq major-mode 'rust-mode)
     (call-interactively 'racer-find-definition))
 
+   ((eq major-mode 'dired-mode)
+     (dired-find-file-other-window))
+
    ;; Else...
    (t
     (setq this-command 'xref-find-definitions)
@@ -344,7 +362,9 @@
 
 (progn
   (define-prefix-command 'my-emacs-lisp-mode-keymap)
-  (define-key my-emacs-lisp-mode-keymap (kbd "e") 'eval-buffer))
+  (define-key my-emacs-lisp-mode-keymap (kbd "e") 'eval-buffer)
+  (define-key my-emacs-lisp-mode-keymap (kbd "s") 'eval-last-sexp)
+  )
 
 
 (defun omar-swiper ()
@@ -369,7 +389,17 @@
 
 (progn
   (define-prefix-command 'my-dired-mode-keymap)
-  (define-key my-dired-mode-keymap (kbd "m") 'dired-mark))
+  (define-key my-dired-mode-keymap (kbd "m") 'dired-mark)
+  (define-key my-dired-mode-keymap (kbd "u") 'dired-unmark)
+  (define-key my-dired-mode-keymap (kbd "h") 'dired-hide-details-mode)
+  (define-key my-dired-mode-keymap (kbd "i") 'dired-up-directory)
+  (define-key my-dired-mode-keymap (kbd "y") 'dired-create-directory)
+  (define-key my-dired-mode-keymap (kbd "r") 'dired-do-rename)
+  (define-key my-dired-mode-keymap (kbd "c") 'dired-do-copy)
+  (define-key my-dired-mode-keymap (kbd "d") 'dired-flag-file-deletion)
+  (define-key my-dired-mode-keymap (kbd "g") 'revert-buffer)
+  (define-key my-dired-mode-keymap (kbd "x") 'dired-do-flagged-delete)
+  )
 
 (progn
   (define-prefix-command 'my-rust-mode-keymap)
@@ -416,6 +446,10 @@
   (define-key my-b-keymap (kbd "k") 'describe-key)
   (define-key my-b-keymap (kbd "v") 'describe-variable)
   (define-key my-b-keymap (kbd "i") 'omar-goto-init)
+  (define-key my-b-keymap (kbd "s") 'start-kbd-macro)
+  (define-key my-b-keymap (kbd "e") 'end-kbd-macro)
+  (define-key my-b-keymap (kbd "s") 'start-kbd-macro)
+  (define-key my-b-keymap (kbd "c") 'call-last-kbd-macro)
   )
 
 (use-package xah-fly-keys
@@ -511,8 +545,12 @@
  '(ediff-split-window-function (quote split-window-horizontally))
  '(ediff-window-setup-function (quote ediff-setup-windows-plain))
  '(eldoc-idle-delay 0.4)
- '(elpy-rpc-python-command "python3")
+ '(elpy-rpc-python-command "python3" t)
+ '(eval-expression-print-length nil)
+ '(eval-expression-print-level nil)
+ '(fill-column 90)
  '(gud-tooltip-mode t)
+ '(holiday-bahai-holidays nil)
  '(indent-tabs-mode nil)
  '(inhibit-startup-screen t)
  '(ivy-count-format "(%d/%d) ")
@@ -521,12 +559,13 @@
  '(ivy-initial-inputs-alist nil)
  '(ivy-use-virtual-buffers nil)
  '(lsp-inhibit-message nil)
+ '(org-agenda-include-diary t)
  '(org-agenda-only-exact-dates t t)
  '(org-confirm-babel-evaluate nil)
  '(org-log-into-drawer t)
  '(package-selected-packages
    (quote
-    (rg smart-mode-line hide-mode-line ob-rust org-present ccls company-lsp lsp-mode ggtags lsp-rust lsp amx fish-mode company-quickhelp counsel haskell-mode markdown-mode cargo use-package xah-fly-keys which-key solarized-theme smex racer powerline magit intero flycheck-rust flycheck-pos-tip flycheck-irony flx-ido elpy diminish company-irony-c-headers clojure-mode better-defaults auctex)))
+    (ledger ledger-mode org-wild-notifier rg smart-mode-line hide-mode-line ob-rust org-present ccls company-lsp lsp-mode ggtags lsp-rust lsp amx fish-mode company-quickhelp counsel haskell-mode markdown-mode cargo use-package xah-fly-keys which-key solarized-theme smex racer powerline magit intero flycheck-rust flycheck-pos-tip flycheck-irony flx-ido elpy diminish company-irony-c-headers clojure-mode better-defaults auctex)))
  '(projectile-completion-system (quote ivy))
  '(show-paren-mode t)
  '(show-trailing-whitespace t)
@@ -790,22 +829,29 @@ Version 2017-10-22"
           (lambda ()
             (org-present-big)
             (org-display-inline-images)
+            (hide-mode-line-mode)
             (toggle-truncate-lines)
+            (setq show-trailing-whitespace nil)
             ;; (delete-window)
             (flyspell-mode-off)
-            ;; (org-present-hide-cursor)
-            ;; (org-present-read-only)
+            (org-present-hide-cursor)
+            (org-present-read-only)
             ))
 
 (add-hook 'org-present-mode-quit-hook
           (lambda ()
             (org-present-small)
+            (hide-mode-line-mode nil)
             (org-remove-inline-images)
             (toggle-truncate-lines)
+            (setq show-trailing-whitespace 1)
             (org-present-show-cursor)
             (flyspell-mode-on)
             ;; (org-present-read-write)
             ))
+
+(setq org-agenda-span 7)
+(setq org-agenda-start-on-weekday nil)
 
 (defun org-rust-block ()
   "Insert a code block for rust"
@@ -877,3 +923,55 @@ Version 2017-10-22"
 ;;     (princ (substitute-command-keys (format "\\{%s}" keymap)))
 ;;     (with-current-buffer standard-output ;; temp buffer
 ;;       (setq help-xref-stack-item (list #'my-describe-keymap keymap)))))
+
+
+(defun ledger-split-amount ()
+  (interactive)
+  (save-excursion
+  (beginning-of-line)
+  (while (not (equal (string-trim (thing-at-point (quote line) t)) ""))
+    (previous-line))
+  (next-line)
+  (next-line)
+  (end-of-line)
+  (while (not (equal (string (char-after)) " "))
+    (backward-char))
+  (let* ((amount-str (buffer-substring (point) (line-end-position)))
+         (amount (string-to-number amount-str))
+         (split-amount (/ amount -2))
+         (split-amount-str (number-to-string split-amount)))
+    (next-line)
+    (end-of-line)
+    (insert (concat "  " split-amount-str))
+    (indent-for-tab-command)
+    (next-line)
+    (let ((line-contents (string-trim (thing-at-point (quote line) t))))
+      (if (equal "Assets:DaphnieOwed" line-contents)
+          (progn
+            (end-of-line)
+            (insert (concat "  " split-amount-str))
+            (indent-for-tab-command))
+        (progn
+          (insert (concat "Assets:DaphnieOwed  " split-amount-str))
+          (indent-for-tab-command)
+          ))
+      (end-of-line)
+      (newline)
+      ))))
+
+
+(setq increase-rust-text-size t)
+
+(defun increase-2x ()
+  "Increase text size for rust mode check/build if variable is set."
+  (if increase-rust-text-size
+      (text-scale-increase 1.0)
+      ))
+(add-hook 'cargo-process-mode-hook 'increase-2x)
+
+;; Add holidays to org mode
+;; (setq org-agenda-include-diary t)
+;; (setq holiday-bahai-holidays nil)
+;; (setq holiday-hebrew-holidays nil)
+;; (setq holiday-islamic-holidays nil)
+(setenv "PATH" (concat (getenv "PATH") "/home/gatowololo/InstalledPrograms"))

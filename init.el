@@ -1,33 +1,15 @@
+;; =================================================================================
+;; Package Mode Init.
 (require 'package)
+;; Faster init times supposedly?
 (setq package-enable-at-startup nil)
+
+;;(package-initialize)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 
-;; Issues with certificate.
-(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
 (package-initialize)
 
-(setq omar-local-file "~/.emacs.d/local.el")
-(if (file-exists-p omar-local-file)
-    (load-file omar-local-file))
-
-(use-package org-wild-notifier
-  :ensure t
-  :config
-  (org-wild-notifier-mode)
-  (setq alert-default-style 'libnotify)
-  )
-
-(use-package hide-mode-line
-  :ensure t
-  )
-
-(use-package ledger-mode
-  :ensure t
-  :init
-  (add-to-list 'auto-mode-alist '("\\.journal\\'" . ledger-mode))
-  )
-
-; Install 'use-package' if necessary
+;; Install 'use-package' if necessary
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
@@ -36,175 +18,13 @@
 (eval-when-compile
   (require 'use-package))
 
-(use-package diminish
-  :ensure t)
-
-(use-package ob-rust
-  :ensure t)
-
-(use-package projectile
-  :ensure t
-  :diminish projectile-mode)
-
-(use-package autorevert
-  :diminish auto-revert-mode
-  )
-
-(use-package eldoc
-  :diminish eldoc-mode
-  )
-
-(setq compilation-read-command nil)
-
-;; Autocompletion engine used by ivy/counsel/?swiper?
-(use-package amx
-  :ensure t
-  :config
-  (amx-mode))
-
-;; Counsel: a collection of Ivy-enhanced versions of common Emacs commands
-;; Ivy: a generic completion mechanism for Emacs
-;; Swiper: an Ivy-enhanced alternative to isearch
-(use-package counsel
-  :ensure t
-  :config
-  (ivy-mode 1)
-  (setq ivy-count-format "")
-  :custom
-  (ivy-use-virtual-buffers t)
-  :diminish ivy-mode
-  ;; (ivy-initial-inputs-alist nil "No ^ when ivy searching.")
-  )
-
-(add-hook 'calendar-mode-hook 'my-no-show-whitespace)
-
- (use-package org
-  :init
-  ;; Spell checking for org mode.
-  (add-hook 'org-mode-hook 'flyspell-mode)
-  (add-hook 'org-mode-hook 'company-mode)
-  (add-hook 'org-agenda-mode-hook 'my-no-show-whitespace)
-  :config
-  (setq org-todo-keywords
-  '((sequence "TODO(t)" "NEXT(n)" "SOMEDAY(s)" "ASSIGNED(a@)" "|" "WONT_DO(w)" "DONE(d)")))
-  )
-
-(defun my-no-show-whitespace ()
-  (setq show-trailing-whitespace nil))
-
-
-;; (use-package flyspell
-;;   :init
-;;   ;; (define-key flyspell-mouse-map (kbd "<mouse-3>") #'flyspell-correct-word)
-;;   :custom
-;;   (ispell-program-name "hunspell")
-;;   (ispell-local-dictionary "en_US")
-;;   (ispell-hunspell-dictionary-alist '(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_US") nil utf-8)))
-;;   :diminish flyspell-mode
-;;   )
-
-(use-package markdown-mode
-  :init
-  (add-hook 'markdown-mode-hook 'flyspell-mode)
-  )
-
-(use-package auctex
-  :defer t
-  :ensure t
-  :init
-  (add-hook 'LaTeX-mode-hook 'flyspell-mode)
-  :config
-  ;; Unbind so error message doesn't show crappy default keybinding.
-  (define-key TeX-mode-map (kbd "C-c `") nil)
-  (define-key TeX-mode-map (kbd "C-x `") nil)
-  )
-
-
-(use-package magit
-  :defer t
-  :ensure t)
-
-;; Rust racer
-(use-package racer
-  :defer t
-  :ensure t
-  :diminish racer-mode
-  )
-;; TODO Multicompile
-
-;; Python
-(use-package elpy
-  :ensure t
-  :config (elpy-enable)
-  :init (add-hook 'python-mode-hook 'elpy-mode)
-  :defer t
-  :custom
-  (elpy-rpc-python-command "python3")
-  :diminish elpy-mode
-  )
-
-(use-package company
-  :ensure t
-  :defer t
-  :init
-  (add-hook 'emacs-lisp-mode-hook 'company-mode)
-  ;; (add-hook 'c++-mode-hook 'company-mode)
-  (add-hook 'c-mode-hook 'company-mode)
-  (add-hook 'rust-mode-hook 'company-mode)
-  ;; (add-hook 'c++-mode-hook
-  ;;           (lambda () (setq company-clang-arguments "-std=c++14")))
-  :config
-  (setq company-idle-delay 0.5
-        company-tooltip-idle-delay 0.5
-        company-minimum-prefix-length 3
-        ;; company-backends '(company-capf company-files
-                                        ;; (company-dabbrev company-ispell) company-keywords)
-        ;; Case sensitive autocompletion!
-        company-dabbrev-downcase nil
-        company-tooltip-align-annotations t)
-  ;; (add-hook 'c++-mode-hook
-            ;; (lambda ()
-            ;;   (add-to-list (make-local-variable 'company-backends)
-            ;;                '(company-irony-c-headers company-irony))))
-  :diminish company-mode
-  )
-
-(use-package rust-mode
-  :ensure t
-  :init
-  (add-hook 'rust-mode-hook 'cargo-minor-mode)
-  (add-hook 'rust-mode-hook #'racer-mode)
-  ;; (add-hook 'racer-mode-hook #'eldoc-mode)
-  (add-hook 'racer-mode-hook #'company-mode)
-
-  ;; :config
-  ;; (add-hook 'rust-mode-hook #'lsp)
-  :diminish rust-mode)
-
-(use-package cargo
-  :ensure t
-  :diminish cargo-minor-mode)
-
-(use-package powerline
-  :ensure t
-  :config
-  (powerline-default-theme)
- )
-
-(use-package which-key
-  :ensure t
-  :init
-  ;; Allow us to give custom names to define-key arguments.
-  (setq which-key-enable-extended-define-key t)
-  :config
-  (which-key-mode)
-  :diminish which-key-mode)
-
-;; Have ido-not automatically search for file in other directories.
-(setq ido-auto-merge-work-directories-length -1)
-
-(add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
-
+;; =================================================================================
+;; Local file settings.
+(setq omar-local-file "~/.emacs.d/local.el")
+(if (file-exists-p omar-local-file)
+    (load-file omar-local-file))
+;; =================================================================================
+;; Xah Fly Keys
 (defun nothing ()
   (interactive))
 
@@ -216,7 +36,7 @@
   ;; Main key bindings.
   (define-key xah-fly-key-map (kbd "<f3>") 'save-buffer)
   ;; Figure out what to bind.
-  (define-key xah-fly-key-map (kbd "<f4>") 'ido-find-file)
+  (define-key xah-fly-key-map (kbd "<f4>") 'helm-find-files)
   (define-key xah-fly-key-map (kbd "<f5>") 'nothing)
   (define-key xah-fly-key-map (kbd "<f6>") 'xah-close-current-buffer)
   (define-key xah-fly-key-map (kbd "<f8>") 'nothing)
@@ -228,19 +48,19 @@
   ;; (define-key xah-fly-key-map (kbd "<f11>") 'man)
   ;; (define-key xah-fly-key-map (kbd "<f12>") 'man)
 
-  (define-key xah-fly-key-map (kbd "/") 'man)
+  (define-key xah-fly-key-map (kbd "/") 'helm-man-woman)
   (define-key xah-fly-key-map (kbd "DEL") 'delete-backward-char)
   (define-key xah-fly-key-map (kbd "d") 'delete-forward-char)
   (define-key xah-fly-key-map (kbd "g") 'kill-line)
-  (define-key xah-fly-key-map (kbd "s") 'counsel-ibuffer)
+  (define-key xah-fly-key-map (kbd "s") 'helm-buffers-list)
   (define-key xah-fly-key-map (kbd "p") 'dired)
   ;; amx will rebind execute-extended-command to point to amx command.
   (define-key xah-fly-key-map (kbd "a") 'nothing)
   (define-key xah-fly-key-map (kbd "q") 'nothing)
   (define-key xah-fly-key-map (kbd "4") 'split-window-right)
-  (define-key xah-fly-key-map (kbd "5") 'counsel-M-x)
+  (define-key xah-fly-key-map (kbd "5") 'helm-M-x)
   (define-key xah-fly-key-map (kbd "w") 'recenter-top-bottom)
-  (define-key xah-fly-key-map (kbd "n") 'omar-swiper)
+  (define-key xah-fly-key-map (kbd "n") 'helm-swoop)
   (define-key xah-fly-key-map (kbd "0") 'delete-window)
 
   (global-set-key (kbd "M-n") 'omar-next-error)
@@ -303,28 +123,21 @@
     (xah-paste-or-paste-previous))))
 
 
+;; What happens when we press space + '.'
 (defun per-mode-spc-dot-keybindings ()
   (interactive)
   (cond
-   ;; Rust
-   ((eq major-mode 'rust-mode)
-    (call-interactively 'racer-find-definition-other-window))
-
-   ;; Else...
    (t
     (setq this-command 'xref-find-definitions-other-window)
     (call-interactively 'xref-find-definitions-other-window)
     )))
 
+;; What happens when we press '.'
 (defun per-mode-dot-keybindings ()
   (interactive)
   (cond
-   ;; Rust
-   ((eq major-mode 'rust-mode)
-    (call-interactively 'racer-find-definition))
-
    ((eq major-mode 'dired-mode)
-     (dired-find-file-other-window))
+		(dired-find-file-other-window))
 
    ;; Else...
    (t
@@ -414,8 +227,8 @@
   )
 
 (defun use-map (keymap)
-    (define-key xah-fly-key-map (kbd "|") keymap)
-    (setq unread-command-events (listify-key-sequence "|")))
+	(define-key xah-fly-key-map (kbd "|") keymap)
+	(setq unread-command-events (listify-key-sequence "|")))
 
 ;;; Org Mode commands for my keymap.
 (progn
@@ -440,6 +253,7 @@
 ;;; Key bindings that should be avaliable from any buffer i.e. not major mode specific.
 (progn
   (define-prefix-command 'my-b-keymap)
+  (define-key my-b-keymap (kbd "t") 'org-capture)
   (define-key my-b-keymap (kbd "a") 'org-agenda)
   (define-key my-b-keymap (kbd "j") 'org-clock-jump-to-current-clock)
   (define-key my-b-keymap (kbd "f") 'describe-function)
@@ -463,335 +277,214 @@
   (remove-hook 'xah-fly-command-mode-activate-hook 'xah-fly-save-buffer-if-file)
   (my-xah-bindings)
   ;; Call on every switch to command mode and on init.
-  (add-hook 'xah-fly-command-mode-activate-hook 'my-xah-bindings)
-  (add-hook 'xah-fly-insert-mode-activate-hook 'my-xah-insert-mode)
+  ;;(add-hook 'xah-fly-command-mode-activate-hook 'my-xah-bindings)
+  ;;(add-hook 'xah-fly-insert-mode-activate-hook 'my-xah-insert-mode)
 
   :diminish xah-fly-keys
   )
+;; =================================================================================
+;; Use Package Modes
+
+(use-package diminish
+  :ensure t)
+
+;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+(setq lsp-keymap-prefix "c-l")
+
+;; (use-package flycheck
+	;; :ensure t)
+
+(use-package lsp-mode
+	:defer t
+	:ensure t
+	:hook (
+	       (rust-mode . lsp)
+	       (lsp-mode . lsp-enable-which-key-integration))
+	:config
+	(setq lsp-rust-server 'rust-analyzer)
+	:commands lsp)
+
+;; optionally
+(use-package lsp-ui
+	:ensure t
+	:commands lsp-ui-mode)
+
+;; if you are helm user
+(use-package helm-lsp
+	:ensure t
+	:commands helm-lsp-workspace-symbol)
+
+(use-package org
+  :init
+  ;; Spell checking for org mode.
+  ;; (add-hook 'org-mode-hook 'flyspell-mode)
+  (add-hook 'org-mode-hook 'company-mode)
+  (add-hook 'org-agenda-mode-hook 'my-no-show-whitespace)
+  :config
+  (setq org-todo-keywords
+  '((sequence  "REOCCURING(r)" "IDEA(e)" "IMPROVING(i)" "TODO(t)" "NEXT(n)" "SOMEDAY(s)" "ASSIGNED(a@)" "|" "WONT_DO(w)" "DONE(d)")))
+  )
+
+(defun my-no-show-whitespace ()
+  (setq show-trailing-whitespace nil))
+
+(use-package helm-swoop
+  :ensure t
+  :defer t
+  :config
+  (setq helm-swoop-split-direction 'split-window-vertically)
+  (setq helm-swoop-speed-or-color t)
+  ;; (setq helm-swoop-use-fuzzy-match t)
+  (setq helm-swoop-use-line-number-face nil)
+  ;; If a symbol or phrase is selected, use it as the initial query.
+  (setq helm-swoop-pre-input-function
+				(lambda ()
+					(if mark-active
+							(buffer-substring-no-properties (mark) (point))
+						"")))
+  )
+
+;; Used for emacs presentations. Allows us to hide the mode-line completely.
+(use-package hide-mode-line
+  :defer t
+  :ensure t
+  )
+
+(use-package dashboard
+  :ensure t
+  :config
+  (dashboard-setup-startup-hook))
+
+(use-package powerline
+  :ensure t
+  :config
+  (powerline-default-theme)
+  )
+
+(use-package keyfreq
+	:ensure t
+	:init
+	(keyfreq-mode 1)
+	(keyfreq-autosave-mode 1)
+	(setq keyfreq-excluded-commands
+				'(self-insert-command
+					forward-char
+					backward-char
+					previous-line
+					next-line))
+	)
 
 ;; Only required once! Comment out after setup.
-;; (use-package solarized-theme
-;;  :ensure t
-;;  :config
-;;  (custom-set-variables
-;;  '(custom-enabled-themes (quote (solarized-light))))
-;;  )
+(use-package solarized-theme
+  :ensure t
+  :init (load-theme 'solarized-light t))
 
-;; (use-package irony
-;;   :defer t
-;;   :ensure t
-;;   :init
-;;   (add-hook 'c++-mode-hook 'irony-mode)
-;;   (add-hook 'c-mode-hook 'irony-mode)
-;;   :config
-;;   (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
-;;   :diminish irony
-;;   )
+(use-package magit
+  :defer t
+  :ensure t)
 
-;; (use-package company-irony
-;;   :defer t
-;;   :ensure t
-;;   :after (company)
-;;   ;; :config
-;;   ;; (add-to-list 'company-backends 'company-irony)
-;; )
+(use-package org-superstar
+  :defer t
+  :ensure t
+  :init
+  (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
+  )
 
 
-;; Eldoc
-;; (add-hook 'c-mode-hook 'eldoc-mode)
-;; (add-hook 'c++-mode-hook 'eldoc-mode)
+(use-package helm
+  :ensure t
+  :bind ("M-x" . helm-M-x)
+  :config
+  (helm-mode)
+	(setq helm-split-window-default-side 'same)
+  :diminish helm-mode
+  )
 
+(use-package which-key
+  :ensure t
+  :init
+  ;; Allow us to give custom names to define-key arguments.
+  (setq which-key-enable-extended-define-key t)
+  :config
+  (which-key-mode)
+  :diminish which-key-mode)
 
-;; (use-package ggtags
-;;   :defer t
-;;   :ensure t
-;;   ;; :init
-;;   :config
-;;   (add-hook 'c++-mode-hook 'ggtags-mode)
-;;   (add-hook 'c-mode-hook 'ggtags-mode)
-;;   :diminish ggtags-mode
-;;   )
+(use-package projectile
+  :ensure t
+  :diminish projectile-mode)
 
-;; Haskell
-(setq-default haskell-font-lock-symbols t)
+(use-package autorevert
+	:ensure t
+  :diminish auto-revert-mode
+	:init
+	(global-auto-revert-mode t)
+  )
 
-;; My Emacs custom variable settings.
+(use-package eldoc
+  :diminish eldoc-mode
+  )
+
+;; "text-mode" is a major mode for editing files of text in a human language"
+;; most major modes for non-programmers inherit from text-mode
+(defun text-mode-hook-setup ()
+  (make-local-variable 'company-backends)
+  (add-to-list 'company-backends 'company-ispell)
+	)
+
+(use-package rust-mode
+  :ensure t
+	:defer t
+  :init
+  (add-hook 'rust-mode-hook 'cargo-minor-mode)
+  :diminish rust-mode)
+
+(use-package cargo
+  :ensure t
+	:defer t
+  :diminish cargo-minor-mode)
+
+(use-package company
+  :ensure t
+  :defer t
+  :hook (
+	 (prog-mode . company-mode)
+	 (text-mode . company-mode)
+	 (text-mode . text-mode-hook-setup))
+	:config
+	(setq company-idle-delay 0.0
+				company-tooltip-idle-delay 0.0
+				company-minimum-prefix-length 3
+				;; company-backends '(company-capf company-files
+				;; (company-dabbrev company-ispell) company-keywords)
+
+				;; Case sensitive autocompletion!
+				company-dabbrev-downcase nil
+				company-dabbrev-ignore-case nil
+				company-tooltip-align-annotations t)
+	:diminish company-mode)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(TeX-save-query nil)
- '(TeX-view-program-selection
-   (quote
-    (((output-dvi has-no-display-manager)
-      "dvi2tty")
-     ((output-dvi style-pstricks)
-      "dvips and gv")
-     (output-dvi "xdvi")
-     (output-pdf "Evince")
-     (output-html "xdg-open"))))
- '(backup-directory-alist (\` (("." . "~/.saves"))))
- '(column-number-mode t)
- '(company-quickhelp-delay 0.1)
- '(compilation-ask-about-save nil)
- '(compilation-read-command t)
- '(compilation-skip-threshold 2)
- '(custom-enabled-themes (quote (solarized-light)))
  '(custom-safe-themes
    (quote
-    ("a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" "d91ef4e714f05fff2070da7ca452980999f5361209e679ee988e3c432df24347" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" default)))
- '(ediff-diff-options "-w")
- '(ediff-split-window-function (quote split-window-horizontally))
- '(ediff-window-setup-function (quote ediff-setup-windows-plain))
- '(eldoc-idle-delay 0.4)
- '(elpy-rpc-python-command "python3" t)
- '(eval-expression-print-length nil)
- '(eval-expression-print-level nil)
- '(fill-column 90)
- '(gud-tooltip-mode t)
- '(holiday-bahai-holidays nil)
- '(indent-tabs-mode nil)
- '(inhibit-startup-screen t)
- '(ivy-count-format "(%d/%d) ")
- '(ivy-extra-directories (quote ("./")))
- '(ivy-height 20)
- '(ivy-initial-inputs-alist nil)
- '(ivy-use-virtual-buffers nil)
- '(lsp-inhibit-message nil)
- '(org-agenda-include-diary t)
- '(org-agenda-only-exact-dates t t)
- '(org-confirm-babel-evaluate nil)
- '(org-log-into-drawer t)
+    ("a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" default)))
+ '(org-agenda-files
+   (quote
+    ("/home/gatowololo/Logs/Life/life.org" "/home/gatowololo/Logs/Life/schedule.org" "/home/gatowololo/Logs/Programming/blog.org" "/home/gatowololo/Logs/Programming/emacs.org" "/home/gatowololo/Logs/Programming/rust.org" "/home/gat
+owololo/Logs/Work/gradSchool.org" "/home/gatowololo/Logs/Work/rr_channel.org" "/home/gatowololo/Logs/Work/process-cache.org")))
  '(package-selected-packages
    (quote
-    (ledger ledger-mode org-wild-notifier rg smart-mode-line hide-mode-line ob-rust org-present ccls company-lsp lsp-mode ggtags lsp-rust lsp amx fish-mode company-quickhelp counsel haskell-mode markdown-mode cargo use-package xah-fly-keys which-key solarized-theme smex racer powerline magit intero flycheck-rust flycheck-pos-tip flycheck-irony flx-ido elpy diminish company-irony-c-headers clojure-mode better-defaults auctex)))
- '(projectile-completion-system (quote ivy))
- '(show-paren-mode t)
- '(show-trailing-whitespace t)
- '(swiper-include-line-number-in-search nil)
- '(tab-width 2)
- '(tool-bar-mode nil)
- '(tooltip-mode nil)
- '(user-full-name "gatowololo")
- '(user-mail-address "gatowololo@gmail.com"))
-
-;; My Emacs functions for settings.
-(defalias 'yes-or-no-p 'y-or-n-p)
-
-;; Ido when searching for files only, I like this better than the way ivy does it.
-(ido-mode 1)
-
-;; (ido-everywhere t)
-(add-to-list `completion-ignored-extensions ".d")
-(scroll-bar-mode -1)
-(menu-bar-mode -1)
-(electric-pair-mode 1)
-
-;; TODO Should probably be a toggle.
-(setq-default dired-omit-files-p t) ; Buffer-local variable
-;; Omit all files starting with "." except "." and ".."
-;; (setq dired-omit-files "^\\.[^.]+")
-(add-hook 'dired-mode-hook
-          (lambda() (dired-hide-details-mode)))
-;; (add-hook 'dired-mode-hook
-;;           (lambda() (local-set-key "")))
-;; (add-hook 'dired-mode-hook
-;;           (lambda() (toggle-truncate-lines)))
-
-
-
+    (aweshell keyfreq org-superstar flycheck helm-lsp lsp-ui lsp-mode cargo rust-mode company projectile helm-swoop which-key helm-config magit solarized-theme powerline hide-mode-line xah-fly-keys use-package)))
+ '(which-key-mode t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(cargo-process--error-face ((t (:inherit error :weight bold))))
- '(org-block-begin-line ((t (:inherit org-meta-line :underline nil))))
- '(org-block-end-line ((t (:inherit org-meta-line :overline nil)))))
-
-;; =============================================================================
-;;
-;; GDB mode
-(setq gdb-show-main 1)
-;; Stolen from: https://stackoverflow.com/questions/3860028/customizing-emacs-gdb
-(setq gdb-many-windows nil)
-
-(defun set-gdb-layout(&optional c-buffer)
-  (if (not c-buffer)
-      (setq c-buffer (window-buffer (selected-window)))) ;; save current buffer
-
-  ;; from http://stackoverflow.com/q/39762833/846686
-  (set-window-dedicated-p (selected-window) nil) ;; unset dedicate state if needed
-  (switch-to-buffer gud-comint-buffer)
-  (delete-other-windows) ;; clean all
-
-  (let* (
-         (w-source (selected-window)) ;; left top
-         (w-gdb (split-window w-source nil 'right)) ;; right bottom
-         (w-locals (split-window w-gdb nil 'above)) ;; right middle bottom
-         (w-stack (split-window w-locals nil 'above)) ;; right middle top
-         ;; (w-breakpoints (split-window w-stack nil 'above)) ;; right top
-         (w-io (split-window w-source (floor(* 0.9 (window-body-height)))
-                             'below)) ;; left bottom
-         )
-    (set-window-buffer w-io (gdb-get-buffer-create 'gdb-inferior-io))
-    (set-window-dedicated-p w-io t)
-    ;; (set-window-buffer w-breakpoints (gdb-get-buffer-create 'gdb-breakpoints-buffer))
-    ;; (set-window-dedicated-p w-breakpoints t)
-    (set-window-buffer w-locals (gdb-get-buffer-create 'gdb-locals-buffer))
-    (set-window-dedicated-p w-locals t)
-    (set-window-buffer w-stack (gdb-get-buffer-create 'gdb-stack-buffer))
-    (set-window-dedicated-p w-stack t)
-
-    (set-window-buffer w-gdb gud-comint-buffer)
-
-    (select-window w-source)
-    (set-window-buffer w-source c-buffer)
-    ))
-
-(defadvice gdb (around args activate)
-  "Change the way to gdb works."
-  (setq global-config-editing (current-window-configuration)) ;; to restore: (set-window-configuration c-editing)
-  (let (
-        (c-buffer (window-buffer (selected-window))) ;; save current buffer
-        )
-    ad-do-it
-    (set-gdb-layout c-buffer))
-  )
-
-(defadvice gdb-reset (around args activate)
-  "Change the way to gdb exit."
-  ad-do-it
-  (set-window-configuration global-config-editing))
-
-;; Make text bigger.
-(set-face-attribute 'default nil :height 140)
-
-(require 'ansi-color)
-(defun display-ansi-colors ()
-  (interactive)
-  (ansi-color-apply-on-region (point-min) (point-max)))
-
-(global-unset-key (kbd "C-a"))
-
-; Do not highlight whitespce for terminal modes.
-(add-hook 'term-mode-hook
-          (lambda() (setq show-trailing-whitespace nil)))
-
-(defun term-paste ()
-  "Special function to paste in term mode."
-  (interactive)
-  (term-line-mode)
-  (xah-paste-or-paste-previous)
-  (term-char-mode)
-  )
-
-(defun reformat-lines-80 ( &optional @length)
-  "Reformat current text block into 1 long line or multiple short lines.
-When there is a text selection, act on the selection, else, act on a text block separated by blank lines.
-
-When the command is called for the first time, it checks the current line's length to decide to go into 1 line or multiple lines. If current line is short, it'll reformat to 1 long lines. And vice versa.
-
-Repeated call toggles between formatting to 1 long line and multiple lines.
-
-If `universal-argument' is called first, use the number value for min length of line. By default, it's 80.
-
-URL `http://ergoemacs.org/emacs/emacs_reformat_lines.html'
-Version 2017-10-22"
-  (interactive)
-  ;; This command symbol has a property “'is-longline-p”, the possible values are t and nil. This property is used to easily determine whether to compact or uncompact, when this command is called again
-  (let* (
-         (@length (if @length
-                      @length
-                    (if current-prefix-arg (prefix-numeric-value current-prefix-arg) 80 )))
-         (is-longline-p
-          (if (eq last-command this-command)
-              (get this-command 'is-longline-p)
-            (> (- (line-end-position) (line-beginning-position)) @length)))
-         ($blanks-regex "\n[ \t]*\n")
-         $p1 $p2
-         )
-    (if (use-region-p)
-        (progn (setq $p1 (region-beginning))
-               (setq $p2 (region-end)))
-      (save-excursion
-        (if (re-search-backward $blanks-regex nil "move")
-            (progn (re-search-forward $blanks-regex)
-                   (setq $p1 (point)))
-          (setq $p1 (point)))
-        (if (re-search-forward $blanks-regex nil "move")
-            (progn (re-search-backward $blanks-regex)
-                   (setq $p2 (point)))
-          (setq $p2 (point)))))
-    (progn
-      (if current-prefix-arg
-          (xah-reformat-to-multi-lines $p1 $p2 @length)
-        (if is-longline-p
-            (xah-reformat-to-multi-lines $p1 $p2 @length)
-          (xah-reformat-whitespaces-to-one-space $p1 $p2)))
-      (put this-command 'is-longline-p (not is-longline-p)))))
-(put 'upcase-region 'disabled nil)
-(put 'downcase-region 'disabled nil)
-
-;; (defun my--advice-irony-start-process (orig-func &rest args)
-;;   (let ((shell-file-name "/bin/sh"))
-;;     (apply orig-func args)))
-;; (advice-add 'irony--start-server-process :around 'my--advice-irony-start-process)
-
-;; (use-package flycheck
-  ;; :ensure t)
-
-(use-package ccls
-  :ensure t
-  :init
-  (setq ccls-execution "/home/gatowololo/InstalledPrograms/ccls/Release/ccls")
-  :hook ((c-mode c++-mode objc-mode) .
-         (lambda () (require 'ccls) (lsp)))
-  )
-  ;; make sure we have lsp-imenu everywhere we have LSP
-  ;; (require 'lsp-imenu)
-  ;; (add-hook 'lsp-after-open-hook 'lsp-enable-imenu)
-  ;; todo move to it's own use-package line.
-  ;; (add-hook 'programming-mode-hook 'lsp)
-  ;; (add-hook 'rust-mode-hook #'lsp)
-  ;; :custom
-  ;; (lsp-inhibit-message t)
-  ;; :custom
-  ;; (lsp-auto-configure 'nil)
-;; )
-
-;; Do not use on the fly syntax checking.
-(setq lsp-prefer-flymake :none)
-(use-package lsp-mode
-  :ensure t
-  :commands lsp
-  :init
-  (add-hook 'c++-mode-hook #'lsp)
-  )
-
-(use-package company-lsp
-  :ensure t
-  :commands company-lsp
-  :after (company)
-  :init
-  (push 'company-lsp company-backends)
-  )
-
-(use-package rg
-  :ensure t)
-;; (use-package lsp-rust
-;;   :ensure t
-;;   :after lsp-mode)
-;;   ;; with-eval-after-load
-  ;; :mode ("\\.rs\\'" . lsp-mode)
-  ;; :config
-  ;; (add-hook 'rust-mode-hook #'lsp-rust-enable)
-  ;; (with-eval-after-load 'lsp-mode
-  ;;   (setq lsp-rust-rls-command '("rustup" "run" "rls"))
-  ;;   (require 'lsp-rust))
-  ;; (setq lsp-rust-rls-command '("rustup" "run" "rls"))
-  ;; (add-hook 'rust-mode-hook #'lsp-rust)
+ )
 
 (defun omar-goto-init ()
   "Open init.el configuratoin file"
@@ -810,168 +503,107 @@ Version 2017-10-22"
       (ivy-mode 1)
       )))
 
-;;; Not provided by cargo, so I make my own.
-(defun cargo-process-check-tests ()
-  (interactive)
-  (cargo-process--start "Check Tests" "check --tests"))
+(show-paren-mode)
+(setq show-trailing-whitespace t)
+(setq tab-width 2)
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+(toggle-scroll-bar -1)
+(setq user-full-name "gatowololo")
+(setq user-mail-address "gatowololo@gmail.com")
+(defalias 'yes-or-no-p 'y-or-n-p)
 
-(defun cargo-process-check-examples ()
-  (interactive)
-  (cargo-process--start "Check Examples" "check --examples"))
+;; Auto complete other parenthese.
+(electric-pair-mode 1)
+(setq inhibit-startup-screen t)
+(setq-default create-lockfiles nil)
+(setq find-function-C-source-directory "/home/gatowololo/InstalledPrograms/emacs27/src")
 
-(defun cargo-std-doc ()
-  (interactive)
-  (shell-command "xdg-open file:///home/gatowololo/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/share/doc/rust/html/std/index.html")
-  )
+;; File Backup
+;; https://www.emacswiki.org/emacs/BackupFiles
+(setq
+ backup-by-copying t     ; don't clobber symlinks
+ kept-new-versions 10    ; keep 10 latest versions
+ kept-old-versions 0     ; don't bother with old versions
+ delete-old-versions t   ; don't ask about deleting old versions
+ version-control t       ; number backups
+ vc-make-backup-files t) ; backup version controlled files
 
-(autoload 'org-present "org-present" nil t)
-(add-hook 'org-present-mode-hook
-          (lambda ()
-            (org-present-big)
-            (org-display-inline-images)
-            (hide-mode-line-mode)
-            (toggle-truncate-lines)
-            (setq show-trailing-whitespace nil)
-            ;; (delete-window)
-            (flyspell-mode-off)
-            (org-present-hide-cursor)
-            (org-present-read-only)
-            ))
+;; backup every save                                                      ;;
 
-(add-hook 'org-present-mode-quit-hook
-          (lambda ()
-            (org-present-small)
-            (hide-mode-line-mode nil)
-            (org-remove-inline-images)
-            (toggle-truncate-lines)
-            (setq show-trailing-whitespace 1)
-            (org-present-show-cursor)
-            (flyspell-mode-on)
-            ;; (org-present-read-write)
-            ))
+;; http://stackoverflow.com/questions/151945/how-do-i-control-how-emacs-makes-backup-files
+;; https://www.emacswiki.org/emacs/backup-each-save.el
+(defvar bjm/backup-file-size-limit (* 5 1024 1024)
+  "Maximum size of a file (in bytes) that should be copied at each savepoint.
 
-(setq org-agenda-span 7)
-(setq org-agenda-start-on-weekday nil)
+If a file is greater than this size, don't make a backup of it.
+Default is 5 MB")
 
-(defun org-rust-block ()
-  "Insert a code block for rust"
-  (interactive)
-  (insert "#+BEGIN_SRC rust\n\n#+END_SRC")
-  (previous-line)
-  )
+(defvar bjm/backup-location (expand-file-name "~/.emacs-backups")
+  "Base directory for backup files.")
 
-(use-package smart-mode-line
-  :ensure t
-  :config (sml/setup)
-  ;; :diminish
-  )
+(defvar bjm/backup-trash-dir (expand-file-name "~/.local/share/Trash/files/")
+  "Directory for unwanted backups.")
 
-;; Temporary fix to Rust Mode for properly parsing regex for compilation mode.
-;; TODO May need to be moved into rust-mode and called before loading...
-(setq rustc-compilation-regexps
-  (let ((file "\\([^\n]+\\)")
-        (start-line "\\([0-9]+\\)")
-        (start-col  "\\([0-9]+\\)"))
-    (let ((re (concat "^\\(?:\\(?:error\\)\\|\\(?:error\\[E[0-9]+\\]\\)\\|\\(warning\\)\\)[^\0]+?--> \\(" file ":" start-line ":" start-col "\\)")))
-      (cons re '(3 4 5 (1) 2)))))
+(defvar bjm/backup-exclude-regexp nil
+  "Don't back up files matching this regexp.
+Files whose full name matches this regexp are backed up to `bjm/backup-trash-dir'. Set to nil to disable this.")
 
-(defun rust-multiline-error-filter ()
-  (save-excursion
-    (let ((start compilation-filter-start)
-          (end (point)))
-      (goto-char start)
-      (beginning-of-line)  ; is this necessary? should not harm ...
-      (while (re-search-forward "^\\(error\\|warning\\)\\(?:\\[E[0-9]+\\]\\)?:[^\n]*[\n]" end t)
-        (put-text-property (match-beginning 0) (match-end 0) 'compilation-multiline t)))))
-(add-hook 'rust-mode-hook
-          (lambda () (add-hook 'compilation-filter-hook #'rust-multiline-error-filter)))
+;; Default and per-save backups go here:
+;; N.B. backtick and comma allow evaluation of expression
+;; when forming list
+(setq backup-directory-alist
+      `(("" . ,(expand-file-name "per-save" bjm/backup-location))))
 
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
-(add-hook 'minibuffer-setup-hook '(lambda () (setq show-trailing-whitespace nil)))
-(add-hook 'compilation-mode-hook
-          (lambda ()
-            (local-set-key (kbd "M-n") 'omar-next-error)
-            (local-set-key (kbd "M-p") 'omar-prev-error)))
+;; add trash dir if needed
+(if bjm/backup-exclude-regexp
+    (add-to-list 'backup-directory-alist `(,bjm/backup-exclude-regexp . ,bjm/backup-trash-dir)))
 
-(defun omar-next-error ()
-  (interactive)
-  (xah-next-window-or-frame)
-  (condition-case nil
-      (next-error 1)
-    (error (xah-next-window-or-frame))))
+(defun bjm/backup-every-save ()
+  "Backup files every time they are saved.
+Files are backed up to `bjm/backup-location' in subdirectories \"per-session\" once per Emacs session, and \"per-save\" every time a file is saved.
+Files whose names match the REGEXP in `bjm/backup-exclude-regexp' are copied to `bjm/backup-trash-dir' instead of the normal backup directory.
+Files larger than `bjm/backup-file-size-limit' are not backed up."
 
-(defun omar-prev-error ()
-  (interactive)
-  (xah-next-window-or-frame)
-  (condition-case nil
-      (previous-error 1)
-    (error (xah-next-window-or-frame))))
-
-;; (defun my-describe-keymap (keymap)
-;;   "Describe a keymap using `substitute-command-keys'."
-;;   (interactive
-;;    (list (completing-read
-;;           "Keymap: " (let (maps)
-;;                        (mapatoms (lambda (sym)
-;;                                    (and (boundp sym)
-;;                                         (keymapp (symbol-value sym))
-;;                                         (push sym maps))))
-;;                        maps)
-;;           nil t)))
-;;   (with-output-to-temp-buffer (format "*keymap: %s*" keymap)
-;;     (princ (format "%s\n\n" keymap))
-;;     (princ (substitute-command-keys (format "\\{%s}" keymap)))
-;;     (with-current-buffer standard-output ;; temp buffer
-;;       (setq help-xref-stack-item (list #'my-describe-keymap keymap)))))
-
-
-(defun ledger-split-amount ()
-  (interactive)
-  (save-excursion
-  (beginning-of-line)
-  (while (not (equal (string-trim (thing-at-point (quote line) t)) ""))
-    (previous-line))
-  (next-line)
-  (next-line)
-  (end-of-line)
-  (while (not (equal (string (char-after)) " "))
-    (backward-char))
-  (let* ((amount-str (buffer-substring (point) (line-end-position)))
-         (amount (string-to-number amount-str))
-         (split-amount (/ amount -2))
-         (split-amount-str (number-to-string split-amount)))
-    (next-line)
-    (end-of-line)
-    (insert (concat "  " split-amount-str))
-    (indent-for-tab-command)
-    (next-line)
-    (let ((line-contents (string-trim (thing-at-point (quote line) t))))
-      (if (equal "Assets:DaphnieOwed" line-contents)
+  ;; Make a special "per session" backup at the first save of each
+  ;; emacs session.
+  (when (not buffer-backed-up)
+    ;;
+    ;; Override the default parameters for per-session backups.
+    ;;
+    (let ((backup-directory-alist
+           `(("." . ,(expand-file-name "per-session" bjm/backup-location))))
+          (kept-new-versions 3))
+      ;;
+      ;; add trash dir if needed
+      ;;
+      (if bjm/backup-exclude-regexp
+          (add-to-list
+           'backup-directory-alist
+           `(,bjm/backup-exclude-regexp . ,bjm/backup-trash-dir)))
+      ;;
+      ;; is file too large?
+      ;;
+      (if (<= (buffer-size) bjm/backup-file-size-limit)
           (progn
-            (end-of-line)
-            (insert (concat "  " split-amount-str))
-            (indent-for-tab-command))
+            (message "Made per session backup of %s" (buffer-name))
+            (backup-buffer))
+        (message "WARNING: File %s too large to backup - increase value of bjm/backup-file-size-limit" (buffer-name)))))
+  ;;
+  ;; Make a "per save" backup on each save.  The first save results in
+  ;; both a per-session and a per-save backup, to keep the numbering
+  ;; of per-save backups consistent.
+  ;;
+  (let ((buffer-backed-up nil))
+    ;;
+    ;; is file too large?
+    ;;
+    (if (<= (buffer-size) bjm/backup-file-size-limit)
         (progn
-          (insert (concat "Assets:DaphnieOwed  " split-amount-str))
-          (indent-for-tab-command)
-          ))
-      (end-of-line)
-      (newline)
-      ))))
+          (message "Made per save backup of %s" (buffer-name))
+          (backup-buffer))
+      (message "WARNING: File %s too large to backup - increase value of bjm/backup-file-size-limit" (buffer-name)))))
 
-
-(setq increase-rust-text-size t)
-
-(defun increase-2x ()
-  "Increase text size for rust mode check/build if variable is set."
-  (if increase-rust-text-size
-      (text-scale-increase 1.0)
-      ))
-(add-hook 'cargo-process-mode-hook 'increase-2x)
-
-;; Add holidays to org mode
-;; (setq org-agenda-include-diary t)
-;; (setq holiday-bahai-holidays nil)
-;; (setq holiday-hebrew-holidays nil)
-;; (setq holiday-islamic-holidays nil)
-(setenv "PATH" (concat (getenv "PATH") "/home/gatowololo/InstalledPrograms"))
+;; add to save hook
+(add-hook 'before-save-hook 'bjm/backup-every-save)
+(setq backup-directory-alist '(("." . "~/MyEmacsBackups")))

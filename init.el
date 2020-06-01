@@ -1,3 +1,40 @@
+(setq gc-cons-threshold 100000000)
+(defvar file-name-handler-alist-original file-name-handler-alist)
+(setq file-name-handler-alist nil)
+(setq site-run-file nil)
+(menu-bar-mode -1)
+(unless (and (display-graphic-p) (eq system-type 'darwin))
+  (push '(menu-bar-lines . 0) default-frame-alist))
+(push '(tool-bar-lines . 0) default-frame-alist)
+(push '(vertical-scroll-bars) default-frame-alist)
+(defvar better-gc-cons-threshold 67108864 ; 64mb
+  "The default value to use for `gc-cons-threshold'.
+
+If you experience freezing, decrease this.  If you experience stuttering, increase this.")
+
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (setq gc-cons-threshold better-gc-cons-threshold)
+            (setq file-name-handler-alist file-name-handler-alist-original)
+            (makunbound 'file-name-handler-alist-original)))
+
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (if (boundp 'after-focus-change-function)
+                (add-function :after after-focus-change-function
+                              (lambda ()
+                                (unless (frame-focus-state)
+                                  (garbage-collect))))
+              (add-hook 'after-focus-change-function 'garbage-collect))
+            (defun gc-minibuffer-setup-hook ()
+              (setq gc-cons-threshold (* better-gc-cons-threshold 2)))
+
+            (defun gc-minibuffer-exit-hook ()
+              (garbage-collect)
+              (setq gc-cons-threshold better-gc-cons-threshold))
+
+            (add-hook 'minibuffer-setup-hook #'gc-minibuffer-setup-hook)
+            (add-hook 'minibuffer-exit-hook #'gc-minibuffer-exit-hook)))
 ;; =================================================================================
 ;; Package Mode Init.
 (require 'package)
@@ -48,7 +85,7 @@
   ;; (define-key xah-fly-key-map (kbd "<f11>") 'man)
   ;; (define-key xah-fly-key-map (kbd "<f12>") 'man)
 
-  (define-key xah-fly-key-map (kbd "/") 'helm-man-woman)
+  (define-key xah-fly-key-map (kbd "/") 'lsp-ui-doc-glance)
   (define-key xah-fly-key-map (kbd "DEL") 'delete-backward-char)
   (define-key xah-fly-key-map (kbd "d") 'delete-forward-char)
   (define-key xah-fly-key-map (kbd "g") 'kill-line)
@@ -59,6 +96,7 @@
   (define-key xah-fly-key-map (kbd "q") 'nothing)
   (define-key xah-fly-key-map (kbd "4") 'split-window-right)
   (define-key xah-fly-key-map (kbd "5") 'helm-M-x)
+	(define-key xah-fly-key-map (kbd "7") 'my-project-keymap)
   (define-key xah-fly-key-map (kbd "w") 'recenter-top-bottom)
   (define-key xah-fly-key-map (kbd "n") 'helm-swoop)
   (define-key xah-fly-key-map (kbd "0") 'delete-window)
@@ -73,7 +111,7 @@
   (define-key xah-fly-key-map "." '("jump-to-symbol-definition" . per-mode-dot-keybindings))
 
   ;; Usually paste, but when in term mode, we want to use special paste.
-  (define-key xah-fly-key-map (kbd "v") 'per-mode-v-keybindings)
+  (define-key xah-fly-key-map (kbd "v") 'xah-paste-or-paste-previous)
   (define-key xah-fly-key-map (kbd "b") 'my-b-keymap)
   ;; Needed since we want our hook called.
   (define-key xah-fly-key-map (kbd "M-SPC") 'nothing)
@@ -99,28 +137,18 @@
   (define-key xah-fly-leader-key-map (kbd ".") 'per-mode-spc-dot-keybindings)
   (define-key xah-fly-leader-key-map (kbd "t") 'omar-highlight-symbol)
   (define-key xah-fly-leader-key-map (kbd "s") 'alternate-buffer)
+	(define-key xah-fly-leader-key-map (kbd "/") 'helm-man-woman)
   )
 
 (defun alternate-buffer ()
   (interactive)
   (switch-to-buffer (other-buffer)))
 
-
 ;; We use | as a special symbol to get my keybindings to work.
 ;; So here we clear it out for use in key insert mode.
 (defun my-xah-insert-mode ()
   (define-key xah-fly-key-map (kbd "|") nil)
   )
-
-;; Special key bindings for pressing v "paste" since for a terminal,
-;; we need to use term-paste instead.
-(defun per-mode-v-keybindings ()
-  (interactive)
-  (cond
-   ((eq major-mode 'term-mode)
-    (term-paste))
-   (t
-    (xah-paste-or-paste-previous))))
 
 
 ;; What happens when we press space + '.'
@@ -215,6 +243,12 @@
   )
 
 (progn
+  (define-prefix-command 'my-project-keymap)
+  (define-key my-project-keymap (kbd "n") 'flycheck-next-error)
+  (define-key my-project-keymap (kbd "h") 'flycheck-previous-error)
+  )
+
+(progn
   (define-prefix-command 'my-rust-mode-keymap)
   (define-key my-rust-mode-keymap (kbd "b") 'cargo-process-build)
   (define-key my-rust-mode-keymap (kbd "t") 'cargo-process-test)
@@ -237,7 +271,7 @@
   ;; Bindings:
   (define-key my-org-mode-keymap (kbd "l") 'org-insert-link)
   (define-key my-org-mode-keymap (kbd "t") 'org-todo)
-  (define-key my-org-mode-keymap (kbd "s") 'org-time-stamp)
+  (define-key my-org-mode-keymap (kbd "s") 'org-schedule)
   (define-key my-org-mode-keymap (kbd "d") 'org-deadline)
   (define-key my-org-mode-keymap (kbd "i") 'org-clock-in)
   (define-key my-org-mode-keymap (kbd "o") 'org-clock-out)
@@ -257,6 +291,7 @@
   (define-key my-b-keymap (kbd "a") 'org-agenda)
   (define-key my-b-keymap (kbd "j") 'org-clock-jump-to-current-clock)
   (define-key my-b-keymap (kbd "f") 'describe-function)
+  (define-key my-b-keymap (kbd "h") 'helm-resume)
   (define-key my-b-keymap (kbd "k") 'describe-key)
   (define-key my-b-keymap (kbd "v") 'describe-variable)
   (define-key my-b-keymap (kbd "i") 'omar-goto-init)
@@ -289,10 +324,18 @@
   :ensure t)
 
 ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-(setq lsp-keymap-prefix "c-l")
+;; (setq lsp-keymap-prefix "C-l")
 
-;; (use-package flycheck
-	;; :ensure t)
+(use-package flycheck
+  :config
+  (setq flycheck-idle-change-delay 1)
+  ;; (setq flycheck-display-errors-delay 0)
+  ;; (setq flycheck-help-echo-function nil)
+  :ensure t)
+
+(use-package helm-rg
+	:defer t
+	:ensure t)
 
 (use-package lsp-mode
 	:defer t
@@ -302,12 +345,34 @@
 	       (lsp-mode . lsp-enable-which-key-integration))
 	:config
 	(setq lsp-rust-server 'rust-analyzer)
+	(setq lsp-flycheck-live-reporting t)
+	(lsp-ui-doc-mode -1)
 	:commands lsp)
 
 ;; optionally
 (use-package lsp-ui
 	:ensure t
-	:commands lsp-ui-mode)
+	:commands lsp-ui-mode
+	:config
+	(setq lsp-ui-doc-header nil)
+	(setq lsp-ui-doc-include-signature t)
+	(setq lsp-ui-doc-delay 0)
+	(setq lsp-ui-sideline-delay 0.1)
+	(setq lsp-ui-sideline-ignore-duplicate t)
+	;; (setq lsp-ui-sideline-enable nil)
+	;; (setq lsp-ui-doc-enable nil)
+	)
+
+;; (use-package flycheck-posframe
+;;   :ensure t
+;;   :after flycheck
+;;   :config
+;; 	(add-hook 'flycheck-mode-hook #'flycheck-posframe-mode)
+;; 	(flycheck-posframe-configure-pretty-defaults)
+;; 	(set-face-background 'flycheck-posframe-background-face "papaya whip")
+;; 	;; (setq next-error-hook nil)
+;; 	;; (add-hook 'next-error-hook 'flycheck-posframe-show-posframe)
+;; 	)
 
 ;; if you are helm user
 (use-package helm-lsp
@@ -352,13 +417,27 @@
 
 (use-package dashboard
   :ensure t
+  :init
   :config
-  (dashboard-setup-startup-hook))
+  (dashboard-setup-startup-hook)
+  (setq recentf-exclude (org-agenda-files))
+  :custom
+  (dashboard-items '((recents  . 7)
+                     (projects . 5)
+                     (bookmarks . 5)))
+  )
 
 (use-package powerline
   :ensure t
   :config
   (powerline-default-theme)
+  )
+
+(use-package org-wild-notifier
+  :ensure t
+  :config
+  (org-wild-notifier-mode)
+  (setq alert-default-style 'libnotify)
   )
 
 (use-package keyfreq
@@ -411,6 +490,8 @@
 
 (use-package projectile
   :ensure t
+  :config
+  (projectile-mode +1)
   :diminish projectile-mode)
 
 (use-package autorevert
@@ -422,6 +503,8 @@
 
 (use-package eldoc
   :diminish eldoc-mode
+	:config
+	(global-eldoc-mode -1)
   )
 
 ;; "text-mode" is a major mode for editing files of text in a human language"
@@ -438,10 +521,18 @@
   (add-hook 'rust-mode-hook 'cargo-minor-mode)
   :diminish rust-mode)
 
+(use-package helm-projectile
+  :ensure t)
+
 (use-package cargo
   :ensure t
-	:defer t
+  :defer t
   :diminish cargo-minor-mode)
+
+(defun cargo-std-doc ()
+  (interactive)
+  (shell-command "xdg-open file:///home/gatowololo/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/share/doc/rust/html/std/index.html")
+  )
 
 (use-package company
   :ensure t
@@ -468,16 +559,18 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(company-posframe-mode nil nil (company-posframe))
  '(custom-safe-themes
    (quote
     ("a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" default)))
+ '(dashboard-items (quote ((recents . 7) (projects . 5) (bookmarks . 5))))
  '(org-agenda-files
    (quote
-    ("/home/gatowololo/Logs/Life/life.org" "/home/gatowololo/Logs/Life/schedule.org" "/home/gatowololo/Logs/Programming/blog.org" "/home/gatowololo/Logs/Programming/emacs.org" "/home/gatowololo/Logs/Programming/rust.org" "/home/gat
-owololo/Logs/Work/gradSchool.org" "/home/gatowololo/Logs/Work/rr_channel.org" "/home/gatowololo/Logs/Work/process-cache.org")))
+    ("/home/gatowololo/Logs/Life/life.org" "/home/gatowololo/Logs/Life/schedule.org" "/home/gatowololo/Logs/Programming/blog.org" "/home/gatowololo/Logs/Programming/emacs.org" "/home/gatowololo/Logs/Programming/rust.org" "/home/gatowololo/Logs/Work/gradSchool.org" "/home/gatowololo/Logs/Work/rr_channel.org" "/home/gatowololo/Logs/Work/process-cache.org")))
  '(package-selected-packages
    (quote
-    (aweshell keyfreq org-superstar flycheck helm-lsp lsp-ui lsp-mode cargo rust-mode company projectile helm-swoop which-key helm-config magit solarized-theme powerline hide-mode-line xah-fly-keys use-package)))
+    (org-wild-notifier company-posframe company-postframe rg flycheck-posframe helm-rg ripgrep helm-projectile aweshell keyfreq org-superstar flycheck helm-lsp lsp-ui lsp-mode cargo rust-mode company projectile helm-swoop which-key helm-config magit solarized-theme powerline hide-mode-line xah-fly-keys use-package)))
+ '(projectile-mode t nil (projectile))
  '(which-key-mode t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -490,6 +583,9 @@ owololo/Logs/Work/gradSchool.org" "/home/gatowololo/Logs/Work/rr_channel.org" "/
   "Open init.el configuratoin file"
   (interactive)
   (find-file "~/.emacs.d/init.el"))
+
+(use-package rg
+  :ensure t)
 
 (defun omar-rg ()
   (interactive)
@@ -518,6 +614,20 @@ owololo/Logs/Work/gradSchool.org" "/home/gatowololo/Logs/Work/rr_channel.org" "/
 (setq inhibit-startup-screen t)
 (setq-default create-lockfiles nil)
 (setq find-function-C-source-directory "/home/gatowololo/InstalledPrograms/emacs27/src")
+
+(setq org-agenda-files '("/home/gatowololo/Logs/Life/life.org"
+                         "/home/gatowololo/Logs/Life/schedule.org"
+                         "/home/gatowololo/Logs/Programming/blog.org"
+                         "/home/gatowololo/Logs/Programming/emacs.org"
+                         "/home/gatowololo/Logs/Programming/rust.org"
+                         "/home/gatowololo/Logs/Work/gradSchool.org"
+                         "/home/gatowololo/Logs/Work/rr_channel.org"
+                         "/home/gatowololo/Logs/Work/process-cache.org"
+			 "/home/gatowololo/Logs/Work/VMWare.org"
+                         ))
+
+(add-to-list 'exec-path "/home/gatowololo/InstalledPrograms/")
+
 
 ;; File Backup
 ;; https://www.emacswiki.org/emacs/BackupFiles
@@ -607,3 +717,5 @@ Files larger than `bjm/backup-file-size-limit' are not backed up."
 ;; add to save hook
 (add-hook 'before-save-hook 'bjm/backup-every-save)
 (setq backup-directory-alist '(("." . "~/MyEmacsBackups")))
+
+

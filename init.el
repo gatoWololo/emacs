@@ -346,7 +346,6 @@ If you experience freezing, decrease this.  If you experience stuttering, increa
 	:config
 	(setq lsp-rust-server 'rust-analyzer)
 	(setq lsp-flycheck-live-reporting t)
-	(lsp-ui-doc-mode -1)
 	:commands lsp)
 
 ;; optionally
@@ -359,6 +358,7 @@ If you experience freezing, decrease this.  If you experience stuttering, increa
 	(setq lsp-ui-doc-delay 0)
 	(setq lsp-ui-sideline-delay 0.1)
 	(setq lsp-ui-sideline-ignore-duplicate t)
+	(setq lsp-ui-doc-enable nil)
 	;; (setq lsp-ui-sideline-enable nil)
 	;; (setq lsp-ui-doc-enable nil)
 	)

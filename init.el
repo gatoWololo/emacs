@@ -75,7 +75,7 @@ If you experience freezing, decrease this.  If you experience stuttering, increa
   ;; Figure out what to bind.
   (define-key xah-fly-key-map (kbd "<f4>") 'helm-find-files)
   (define-key xah-fly-key-map (kbd "<f5>") 'nothing)
-  (define-key xah-fly-key-map (kbd "<f6>") 'xah-close-current-buffer)
+  (define-key xah-fly-key-map (kbd "<f1>") 'xah-close-current-buffer)
   (define-key xah-fly-key-map (kbd "<f8>") 'nothing)
   (define-key xah-fly-key-map (kbd "<f7>") 'xah-fly-command-mode-activate)
   (define-key xah-fly-key-map (kbd "<home>") 'xah-fly-command-mode-activate)
@@ -85,7 +85,7 @@ If you experience freezing, decrease this.  If you experience stuttering, increa
   ;; (define-key xah-fly-key-map (kbd "<f11>") 'man)
   ;; (define-key xah-fly-key-map (kbd "<f12>") 'man)
 
-  (define-key xah-fly-key-map (kbd "/") 'lsp-ui-doc-glance)
+  (define-key xah-fly-key-map (kbd "/") 'man)
   (define-key xah-fly-key-map (kbd "DEL") 'delete-backward-char)
   (define-key xah-fly-key-map (kbd "d") 'delete-forward-char)
   (define-key xah-fly-key-map (kbd "g") 'kill-line)
@@ -301,6 +301,10 @@ If you experience freezing, decrease this.  If you experience stuttering, increa
   (define-key my-b-keymap (kbd "c") 'call-last-kbd-macro)
   )
 
+(use-package yasnippet
+  :ensure t
+  )
+
 (use-package xah-fly-keys
   :ensure t
   :init
@@ -311,6 +315,7 @@ If you experience freezing, decrease this.  If you experience stuttering, increa
   ;; ;; remove a hook for autosave.
   (remove-hook 'xah-fly-command-mode-activate-hook 'xah-fly-save-buffer-if-file)
   (my-xah-bindings)
+  (xah-fly-command-mode-activate)
   ;; Call on every switch to command mode and on init.
   ;;(add-hook 'xah-fly-command-mode-activate-hook 'my-xah-bindings)
   ;;(add-hook 'xah-fly-insert-mode-activate-hook 'my-xah-insert-mode)
@@ -320,6 +325,12 @@ If you experience freezing, decrease this.  If you experience stuttering, increa
 ;; =================================================================================
 ;; Use Package Modes
 
+(use-package ledger-mode
+	  :ensure t
+	  :init
+	  (add-to-list 'auto-mode-alist '("\\.journal\\'" . ledger-mode))
+	  )
+	
 (use-package diminish
   :ensure t)
 
@@ -331,6 +342,10 @@ If you experience freezing, decrease this.  If you experience stuttering, increa
   (setq flycheck-idle-change-delay 1)
   ;; (setq flycheck-display-errors-delay 0)
   ;; (setq flycheck-help-echo-function nil)
+  :ensure t)
+
+(use-package realgud
+  :defer t
   :ensure t)
 
 (use-package helm-rg
@@ -519,6 +534,7 @@ If you experience freezing, decrease this.  If you experience stuttering, increa
 	:defer t
   :init
   (add-hook 'rust-mode-hook 'cargo-minor-mode)
+  (add-hook 'rust-mode-hook 'yas-minor-mode)
   :diminish rust-mode)
 
 (use-package helm-projectile
@@ -569,7 +585,7 @@ If you experience freezing, decrease this.  If you experience stuttering, increa
     ("/home/gatowololo/Logs/Life/life.org" "/home/gatowololo/Logs/Life/schedule.org" "/home/gatowololo/Logs/Programming/blog.org" "/home/gatowololo/Logs/Programming/emacs.org" "/home/gatowololo/Logs/Programming/rust.org" "/home/gatowololo/Logs/Work/gradSchool.org" "/home/gatowololo/Logs/Work/rr_channel.org" "/home/gatowololo/Logs/Work/process-cache.org")))
  '(package-selected-packages
    (quote
-    (org-wild-notifier company-posframe company-postframe rg flycheck-posframe helm-rg ripgrep helm-projectile aweshell keyfreq org-superstar flycheck helm-lsp lsp-ui lsp-mode cargo rust-mode company projectile helm-swoop which-key helm-config magit solarized-theme powerline hide-mode-line xah-fly-keys use-package)))
+    (ledger-mode yasnippet realgud org-wild-notifier company-posframe company-postframe rg flycheck-posframe helm-rg ripgrep helm-projectile aweshell keyfreq org-superstar flycheck helm-lsp lsp-ui lsp-mode cargo rust-mode company projectile helm-swoop which-key helm-config magit solarized-theme powerline hide-mode-line xah-fly-keys use-package)))
  '(projectile-mode t nil (projectile))
  '(which-key-mode t))
 (custom-set-faces
@@ -719,3 +735,4 @@ Files larger than `bjm/backup-file-size-limit' are not backed up."
 (setq backup-directory-alist '(("." . "~/MyEmacsBackups")))
 
 
+(put 'downcase-region 'disabled nil)

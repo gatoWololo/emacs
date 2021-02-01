@@ -301,9 +301,9 @@ If you experience freezing, decrease this.  If you experience stuttering, increa
   (define-key my-b-keymap (kbd "c") 'call-last-kbd-macro)
   )
 
-(use-package yasnippet
-  :ensure t
-  )
+;; (use-package yasnippet
+;;   :ensure t
+;;   )
 
 (use-package xah-fly-keys
   :ensure t
@@ -337,46 +337,46 @@ If you experience freezing, decrease this.  If you experience stuttering, increa
 ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
 ;; (setq lsp-keymap-prefix "C-l")
 
-(use-package flycheck
-  :config
-  (setq flycheck-idle-change-delay 1)
-  ;; (setq flycheck-display-errors-delay 0)
-  ;; (setq flycheck-help-echo-function nil)
-  :ensure t)
+;; (use-package flycheck
+;;   :config
+;;   (setq flycheck-idle-change-delay 1)
+;;   ;; (setq flycheck-display-errors-delay 0)
+;;   ;; (setq flycheck-help-echo-function nil)
+;;   :ensure t)
 
-(use-package realgud
-  :defer t
-  :ensure t)
+;; (use-package realgud
+;;   :defer t
+;;   :ensure t)
 
 (use-package helm-rg
 	:defer t
 	:ensure t)
 
-(use-package lsp-mode
-	:defer t
-	:ensure t
-	:hook (
-	       (rust-mode . lsp)
-	       (lsp-mode . lsp-enable-which-key-integration))
-	:config
-	(setq lsp-rust-server 'rust-analyzer)
-	(setq lsp-flycheck-live-reporting t)
-	:commands lsp)
+;; (use-package lsp-mode
+;; 	:defer t
+;; 	:ensure t
+;; 	:hook (
+;; 	       (rust-mode . lsp)
+;; 	       (lsp-mode . lsp-enable-which-key-integration))
+;; 	:config
+;; 	(setq lsp-rust-server 'rust-analyzer)
+;; 	(setq lsp-flycheck-live-reporting t)
+;; 	:commands lsp)
 
-;; optionally
-(use-package lsp-ui
-	:ensure t
-	:commands lsp-ui-mode
-	:config
-	(setq lsp-ui-doc-header nil)
-	(setq lsp-ui-doc-include-signature t)
-	(setq lsp-ui-doc-delay 0)
-	(setq lsp-ui-sideline-delay 0.1)
-	(setq lsp-ui-sideline-ignore-duplicate t)
-	(setq lsp-ui-doc-enable nil)
-	;; (setq lsp-ui-sideline-enable nil)
-	;; (setq lsp-ui-doc-enable nil)
-	)
+;; ;; optionally
+;; (use-package lsp-ui
+;; 	:ensure t
+;; 	:commands lsp-ui-mode
+;; 	:config
+;; 	(setq lsp-ui-doc-header nil)
+;; 	(setq lsp-ui-doc-include-signature t)
+;; 	(setq lsp-ui-doc-delay 0)
+;; 	(setq lsp-ui-sideline-delay 0.1)
+;; 	(setq lsp-ui-sideline-ignore-duplicate t)
+;; 	(setq lsp-ui-doc-enable nil)
+;; 	;; (setq lsp-ui-sideline-enable nil)
+;; 	;; (setq lsp-ui-doc-enable nil)
+;; 	)
 
 ;; (use-package flycheck-posframe
 ;;   :ensure t
@@ -390,9 +390,9 @@ If you experience freezing, decrease this.  If you experience stuttering, increa
 ;; 	)
 
 ;; if you are helm user
-(use-package helm-lsp
-	:ensure t
-	:commands helm-lsp-workspace-symbol)
+;; (use-package helm-lsp
+;; 	:ensure t
+;; 	:commands helm-lsp-workspace-symbol)
 
 (use-package org
   :init
@@ -448,25 +448,25 @@ If you experience freezing, decrease this.  If you experience stuttering, increa
   (powerline-default-theme)
   )
 
-(use-package org-wild-notifier
-  :ensure t
-  :config
-  (org-wild-notifier-mode)
-  (setq alert-default-style 'libnotify)
-  )
+;; (use-package org-wild-notifier
+;;   :ensure t
+;;   :config
+;;   (org-wild-notifier-mode)
+;;   (setq alert-default-style 'libnotify)
+;;   )
 
-(use-package keyfreq
-	:ensure t
-	:init
-	(keyfreq-mode 1)
-	(keyfreq-autosave-mode 1)
-	(setq keyfreq-excluded-commands
-				'(self-insert-command
-					forward-char
-					backward-char
-					previous-line
-					next-line))
-	)
+;; (use-package keyfreq
+;; 	:ensure t
+;; 	:init
+;; 	(keyfreq-mode 1)
+;; 	(keyfreq-autosave-mode 1)
+;; 	(setq keyfreq-excluded-commands
+;; 				'(self-insert-command
+;; 					forward-char
+;; 					backward-char
+;; 					previous-line
+;; 					next-line))
+;; 	)
 
 ;; Only required once! Comment out after setup.
 (use-package solarized-theme
@@ -477,12 +477,12 @@ If you experience freezing, decrease this.  If you experience stuttering, increa
   :defer t
   :ensure t)
 
-(use-package org-superstar
-  :defer t
-  :ensure t
-  :init
-  (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
-  )
+;; (use-package org-superstar
+;;   :defer t
+;;   :ensure t
+;;   :init
+;;   (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
+;;   )
 
 
 (use-package helm
@@ -503,11 +503,11 @@ If you experience freezing, decrease this.  If you experience stuttering, increa
   (which-key-mode)
   :diminish which-key-mode)
 
-(use-package projectile
-  :ensure t
-  :config
-  (projectile-mode +1)
-  :diminish projectile-mode)
+;; (use-package projectile
+;;   :ensure t
+;;   :config
+;;   (projectile-mode +1)
+;;   :diminish projectile-mode)
 
 (use-package autorevert
 	:ensure t
@@ -516,11 +516,11 @@ If you experience freezing, decrease this.  If you experience stuttering, increa
 	(global-auto-revert-mode t)
   )
 
-(use-package eldoc
-  :diminish eldoc-mode
-	:config
-	(global-eldoc-mode -1)
-  )
+;; (use-package eldoc
+;;   :diminish eldoc-mode
+;; 	:config
+;; 	(global-eldoc-mode -1)
+;;   )
 
 ;; "text-mode" is a major mode for editing files of text in a human language"
 ;; most major modes for non-programmers inherit from text-mode
@@ -529,26 +529,26 @@ If you experience freezing, decrease this.  If you experience stuttering, increa
   (add-to-list 'company-backends 'company-ispell)
 	)
 
-(use-package rust-mode
-  :ensure t
-	:defer t
-  :init
-  (add-hook 'rust-mode-hook 'cargo-minor-mode)
-  (add-hook 'rust-mode-hook 'yas-minor-mode)
-  :diminish rust-mode)
+;; (use-package rust-mode
+;;   :ensure t
+;; 	:defer t
+;;   :init
+;;   (add-hook 'rust-mode-hook 'cargo-minor-mode)
+;;   (add-hook 'rust-mode-hook 'yas-minor-mode)
+;;   :diminish rust-mode)
 
-(use-package helm-projectile
-  :ensure t)
+;; (use-package helm-projectile
+;;   :ensure t)
 
-(use-package cargo
-  :ensure t
-  :defer t
-  :diminish cargo-minor-mode)
+;; (use-package cargo
+;;   :ensure t
+;;   :defer t
+;;   :diminish cargo-minor-mode)
 
-(defun cargo-std-doc ()
-  (interactive)
-  (shell-command "xdg-open file:///home/gatowololo/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/share/doc/rust/html/std/index.html")
-  )
+;; (defun cargo-std-doc ()
+;;   (interactive)
+;;   (shell-command "xdg-open file:///home/gatowololo/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/share/doc/rust/html/std/index.html")
+;;   )
 
 (use-package company
   :ensure t

@@ -96,7 +96,6 @@ If you experience freezing, decrease this.  If you experience stuttering, increa
   (define-key xah-fly-key-map (kbd "q") 'nothing)
   (define-key xah-fly-key-map (kbd "4") 'split-window-right)
   (define-key xah-fly-key-map (kbd "5") 'helm-M-x)
-	(define-key xah-fly-key-map (kbd "7") 'my-project-keymap)
   (define-key xah-fly-key-map (kbd "w") 'recenter-top-bottom)
   (define-key xah-fly-key-map (kbd "n") 'helm-swoop)
   (define-key xah-fly-key-map (kbd "0") 'delete-window)
@@ -240,12 +239,6 @@ If you experience freezing, decrease this.  If you experience stuttering, increa
   (define-key my-dired-mode-keymap (kbd "d") 'dired-flag-file-deletion)
   (define-key my-dired-mode-keymap (kbd "g") 'revert-buffer)
   (define-key my-dired-mode-keymap (kbd "x") 'dired-do-flagged-delete)
-  )
-
-(progn
-  (define-prefix-command 'my-project-keymap)
-  (define-key my-project-keymap (kbd "n") 'flycheck-next-error)
-  (define-key my-project-keymap (kbd "h") 'flycheck-previous-error)
   )
 
 (progn
@@ -438,7 +431,6 @@ If you experience freezing, decrease this.  If you experience stuttering, increa
   (setq recentf-exclude (org-agenda-files))
   :custom
   (dashboard-items '((recents  . 7)
-                     (projects . 5)
                      (bookmarks . 5)))
   )
 
@@ -575,18 +567,18 @@ If you experience freezing, decrease this.  If you experience stuttering, increa
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(company-posframe-mode nil nil (company-posframe))
+ ;; '(company-posframe-mode nil nil (company-posframe))
  '(custom-safe-themes
    (quote
     ("a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" default)))
- '(dashboard-items (quote ((recents . 7) (projects . 5) (bookmarks . 5))))
+ '(dashboard-items (quote ((recents . 7) (bookmarks . 5))))
  '(org-agenda-files
    (quote
     ("/home/gatowololo/Logs/Life/life.org" "/home/gatowololo/Logs/Life/schedule.org" "/home/gatowololo/Logs/Programming/blog.org" "/home/gatowololo/Logs/Programming/emacs.org" "/home/gatowololo/Logs/Programming/rust.org" "/home/gatowololo/Logs/Work/gradSchool.org" "/home/gatowololo/Logs/Work/rr_channel.org" "/home/gatowololo/Logs/Work/process-cache.org")))
  '(package-selected-packages
    (quote
-    (ledger-mode yasnippet realgud org-wild-notifier company-posframe company-postframe rg flycheck-posframe helm-rg ripgrep helm-projectile aweshell keyfreq org-superstar flycheck helm-lsp lsp-ui lsp-mode cargo rust-mode company projectile helm-swoop which-key helm-config magit solarized-theme powerline hide-mode-line xah-fly-keys use-package)))
- '(projectile-mode t nil (projectile))
+    (ledger-mode yasnippet realgud org-wild-notifier company-posframe company-postframe rg flycheck-posframe helm-rg ripgrep aweshell keyfreq org-superstar flycheck helm-lsp lsp-ui lsp-mode cargo rust-mode company helm-swoop which-key helm-config magit solarized-theme powerline hide-mode-line xah-fly-keys use-package)))
+ ;; '(projectile-mode t nil (projectile))
  '(which-key-mode t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -603,17 +595,17 @@ If you experience freezing, decrease this.  If you experience stuttering, increa
 (use-package rg
   :ensure t)
 
-(defun omar-rg ()
-  (interactive)
-  (if (projectile-project-p)
-      ;; Make it interactively query
-      (let ((current-prefix-arg '(4)))
-        (call-interactively 'rg-project))
-    (progn
-      (ivy-mode 0)
-      (call-interactively 'rg)
-      (ivy-mode 1)
-      )))
+;; (defun omar-rg ()
+;;   (interactive)
+;;   (if (projectile-project-p)
+;;       ;; Make it interactively query
+;;       (let ((current-prefix-arg '(4)))
+;;         (call-interactively 'rg-project))
+;;     (progn
+;;       (ivy-mode 0)
+;;       (call-interactively 'rg)
+;;       (ivy-mode 1)
+;;       )))
 
 (show-paren-mode)
 (setq show-trailing-whitespace t)

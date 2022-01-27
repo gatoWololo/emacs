@@ -728,3 +728,37 @@ Files larger than `bjm/backup-file-size-limit' are not backed up."
 
 
 (put 'downcase-region 'disabled nil)
+
+(defun ledger-split-amount ()
+  (interactive)
+  (save-excursion
+  (beginning-of-line)
+  (while (not (equal (string-trim (thing-at-point (quote line) t)) ""))
+    (previous-line))
+  (next-line)
+  (next-line)
+  (end-of-line)
+  (while (not (equal (string (char-after)) " "))
+    (backward-char))
+  (let* ((amount-str (buffer-substring (point) (line-end-position)))
+         (amount (string-to-number amount-str))
+         (split-amount (/ amount -2))
+         (split-amount-str (number-to-string split-amount)))
+    (next-line)
+    (end-of-line)
+    (insert (concat "  " split-amount-str))
+    (indent-for-tab-command)
+    (next-line)
+    (let ((line-contents (string-trim (thing-at-point (quote line) t))))
+      (if (equal "Assets:HannahOwed" line-contents)
+          (progn
+            (end-of-line)
+            (insert (concat "  " split-amount-str))
+            (indent-for-tab-command))
+        (progn
+          (insert (concat "Assets:HannahOwed  " split-amount-str))
+          (indent-for-tab-command)
+          ))
+      (end-of-line)
+      (newline)
+      ))))
